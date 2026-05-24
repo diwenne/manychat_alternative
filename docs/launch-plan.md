@@ -102,6 +102,7 @@ Founding agency offer:
 - Limited-time annual deal for the first public agency customers.
 - Manual onboarding included.
 - Feedback calls used to shape the Campaign OS roadmap.
+- Public template pages used as the first SEO and GitHub sharing loop.
 
 ## Launch Risks
 
@@ -117,7 +118,7 @@ First 30 days:
 - 100 GitHub stars.
 - 20 self-host attempts.
 - 10 agencies on waitlist or beta.
-- 3 working campaign templates.
+- 8 working campaign templates.
 - 1 verified real Instagram private reply flow.
 
 First 90 days:

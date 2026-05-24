@@ -8,7 +8,7 @@ This roadmap is optimized for three goals:
 
 ## Phase 0: Foundation
 
-Status: merged through issue [#5](https://github.com/im-anishraj/instagram-comment-to-dm/issues/5).
+Status: merged through issue [#9](https://github.com/im-anishraj/instagram-comment-to-dm/issues/9).
 
 - Email magic-link auth.
 - Workspace tenancy.
@@ -46,6 +46,8 @@ Issue: [#9 Public campaign templates](https://github.com/im-anishraj/instagram-c
 
 - Add public template library.
 - Add seeded templates for high-intent niches.
+- Seeded niches: DTC, real estate, fitness, course sellers, beauty services,
+  restaurants, events, and creators.
 - Route "Use this template" into signup.
 - Let users contribute templates.
 

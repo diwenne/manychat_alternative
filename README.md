@@ -4,7 +4,7 @@ Open-source Instagram comment-to-DM campaign OS for businesses, creators, and ag
 
 CampaignCue turns comments like `LINK`, `PRICE`, or `GUIDE` into Meta-compliant private replies. The core engine is MIT licensed and self-hostable. The hosted SaaS layer is being built for agencies that want campaign templates, analytics, client reports, and managed reliability.
 
-[Roadmap](ROADMAP.md) | [Deployment](DEPLOYMENT.md) | [Production readiness](docs/production-readiness.md) | [Contributing](CONTRIBUTING.md) | [Security](SECURITY.md) | [Open-core model](docs/open-core.md)
+[Templates](app/templates) | [Roadmap](ROADMAP.md) | [Deployment](DEPLOYMENT.md) | [Production readiness](docs/production-readiness.md) | [Contributing](CONTRIBUTING.md) | [Security](SECURITY.md) | [Open-core model](docs/open-core.md)
 
 ## Why This Exists
 
@@ -149,9 +149,9 @@ For production deployment, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 The public launch roadmap is tracked in GitHub issues:
 
-- [#7 Production readiness](https://github.com/im-anishraj/instagram-comment-to-dm/issues/7)
-- [#8 Campaign OS repositioning](https://github.com/im-anishraj/instagram-comment-to-dm/issues/8)
-- [#9 Public campaign templates](https://github.com/im-anishraj/instagram-comment-to-dm/issues/9)
+- [#7 Production readiness](https://github.com/im-anishraj/instagram-comment-to-dm/issues/7) - done
+- [#8 Campaign OS repositioning](https://github.com/im-anishraj/instagram-comment-to-dm/issues/8) - done
+- [#9 Public campaign templates](https://github.com/im-anishraj/instagram-comment-to-dm/issues/9) - done
 - [#10 Tracked links and analytics](https://github.com/im-anishraj/instagram-comment-to-dm/issues/10)
 - [#11 Shareable client reports](https://github.com/im-anishraj/instagram-comment-to-dm/issues/11)
 - [#12 Agency multi-account support](https://github.com/im-anishraj/instagram-comment-to-dm/issues/12)

@@ -7,22 +7,27 @@
  */
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import KeywordInput from "@/components/keyword-input";
 import PostPicker from "@/components/post-picker";
+import { getCampaignTemplate } from "@/lib/templates/campaign-templates";
 
 export default function NewCampaignPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedTemplate = getCampaignTemplate(searchParams.get("template"));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [name, setName] = useState("");
-  const [goal, setGoal] = useState("");
+  const [name, setName] = useState(selectedTemplate?.title ?? "");
+  const [goal, setGoal] = useState(selectedTemplate?.goal ?? "");
   const [accountUsername, setAccountUsername] = useState<string | null>(null);
   const [postId, setPostId] = useState<string | null>(null);
   const [postUrl, setPostUrl] = useState<string | undefined>();
-  const [keywords, setKeywords] = useState<string[]>([]);
-  const [dmMessage, setDmMessage] = useState("");
+  const [keywords, setKeywords] = useState<string[]>(
+    selectedTemplate?.keywords ?? []
+  );
+  const [dmMessage, setDmMessage] = useState(selectedTemplate?.dmMessage ?? "");
   const [wholeWordMatch, setWholeWordMatch] = useState(true);
   const [isActive, setIsActive] = useState(true);
 
@@ -82,6 +87,21 @@ export default function NewCampaignPage() {
         {error && (
           <div className="p-4 rounded-xl bg-error/10 border border-error/20 text-error text-sm">
             {error}
+          </div>
+        )}
+
+        {selectedTemplate && (
+          <div className="border border-cyan-200/20 bg-cyan-300/10 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-cyan-100">
+              Template loaded
+            </p>
+            <p className="mt-2 text-sm font-semibold text-white">
+              {selectedTemplate.title}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-zinc-300">
+              Pick the Instagram post or reel, adjust the copy, and launch when
+              the connection is ready.
+            </p>
           </div>
         )}
 

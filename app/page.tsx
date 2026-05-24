@@ -8,6 +8,7 @@ export const metadata: Metadata = {
 };
 
 const navLinks = [
+  { label: "Templates", href: "/templates" },
   { label: "Product", href: "#product" },
   { label: "Use cases", href: "#use-cases" },
   { label: "Security", href: "#security" },

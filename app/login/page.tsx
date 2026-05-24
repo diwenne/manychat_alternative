@@ -1,4 +1,5 @@
 import { signIn } from "@/lib/auth";
+import { getCampaignTemplate } from "@/lib/templates/campaign-templates";
 
 export const metadata = {
   title: "Login - CampaignCue",
@@ -8,11 +9,19 @@ export const metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ checkEmail?: string; callbackUrl?: string }>;
+  searchParams: Promise<{
+    checkEmail?: string;
+    callbackUrl?: string;
+    template?: string;
+  }>;
 }) {
   const params = await searchParams;
   const checkEmail = params.checkEmail === "1";
-  const callbackUrl = params.callbackUrl ?? "/dashboard";
+  const selectedTemplate = getCampaignTemplate(params.template);
+  const templateCallbackUrl = selectedTemplate
+    ? `/campaigns/new?template=${selectedTemplate.slug}`
+    : null;
+  const callbackUrl = params.callbackUrl ?? templateCallbackUrl ?? "/dashboard";
 
   async function sendMagicLink(formData: FormData) {
     "use server";
@@ -45,11 +54,24 @@ export default async function LoginPage({
             CampaignCue
           </h1>
           <p className="text-muted text-sm leading-relaxed mt-2">
-            Sign in by email, then connect your Instagram professional account.
+            {selectedTemplate
+              ? `Sign in to use the ${selectedTemplate.title} template.`
+              : "Sign in by email, then connect your Instagram professional account."}
           </p>
         </div>
 
         <div className="glass-strong rounded-2xl p-8 shadow-2xl shadow-black/40">
+          {selectedTemplate && !checkEmail && (
+            <div className="mb-5 border border-cyan-200/20 bg-cyan-300/10 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-cyan-100">
+                Template selected
+              </p>
+              <p className="mt-2 text-sm font-semibold text-white">
+                {selectedTemplate.title}
+              </p>
+            </div>
+          )}
+
           {checkEmail ? (
             <div className="text-center py-4">
               <h2 className="text-lg font-semibold mb-2">Check your email</h2>
