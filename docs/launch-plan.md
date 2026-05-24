@@ -110,6 +110,7 @@ Founding agency offer:
 - Manual onboarding included.
 - Feedback calls used to shape the Campaign OS roadmap.
 - Public template pages used as the first SEO and GitHub sharing loop.
+- Referral credits stay manual until the fraud controls in [referral-program.md](referral-program.md) are implemented.
 
 ## Launch Risks
 

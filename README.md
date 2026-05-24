@@ -4,7 +4,7 @@ Open-source Instagram comment-to-DM campaign OS for businesses, creators, and ag
 
 CampaignCue turns comments like `LINK`, `PRICE`, or `GUIDE` into Meta-compliant private replies. The core engine is MIT licensed and self-hostable. The hosted SaaS layer is being built for agencies that want campaign templates, analytics, client reports, and managed reliability.
 
-[Templates](app/templates) | [Roadmap](ROADMAP.md) | [Deployment](DEPLOYMENT.md) | [Production readiness](docs/production-readiness.md) | [Contributing](CONTRIBUTING.md) | [Security](SECURITY.md) | [Open-core model](docs/open-core.md)
+[Templates](app/templates) | [Roadmap](ROADMAP.md) | [Deployment](DEPLOYMENT.md) | [Referral plan](docs/referral-program.md) | [Production readiness](docs/production-readiness.md) | [Contributing](CONTRIBUTING.md) | [Security](SECURITY.md) | [Open-core model](docs/open-core.md)
 
 ## Why This Exists
 
@@ -71,6 +71,7 @@ The hosted product will focus on agencies and campaign teams:
 - Tracked links and click analytics.
 - Shareable client reports.
 - Multi-account agency workspaces.
+- Founding agency offer and referral-program plan.
 - Priority support and onboarding.
 
 The core remains public so builders can self-host, audit, fork, and contribute.
@@ -159,7 +160,7 @@ The public launch roadmap is tracked in GitHub issues:
 - [#10 Tracked links and analytics](https://github.com/im-anishraj/instagram-comment-to-dm/issues/10) - done
 - [#11 Shareable client reports](https://github.com/im-anishraj/instagram-comment-to-dm/issues/11) - done
 - [#12 Agency multi-account support](https://github.com/im-anishraj/instagram-comment-to-dm/issues/12) - done
-- [#13 Founding agency offer and referrals](https://github.com/im-anishraj/instagram-comment-to-dm/issues/13)
+- [#13 Founding agency offer and referrals](https://github.com/im-anishraj/instagram-comment-to-dm/issues/13) - done
 - [#14 SEO landing pages](https://github.com/im-anishraj/instagram-comment-to-dm/issues/14)
 
 See [ROADMAP.md](ROADMAP.md) for the grouped plan.

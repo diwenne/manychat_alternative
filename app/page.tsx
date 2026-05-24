@@ -13,6 +13,7 @@ const navLinks = [
   { label: "Use cases", href: "#use-cases" },
   { label: "Security", href: "#security" },
   { label: "Pricing", href: "#pricing" },
+  { label: "Founding offer", href: "#founding-offer" },
 ];
 
 const heroStats = [
@@ -127,6 +128,19 @@ const pricingTiers = [
     cta: "Start Agency",
     featured: false,
   },
+];
+
+const foundingOffer = [
+  "Founding Agency badge on your client reports during beta",
+  "Manual onboarding for up to 10 Instagram client accounts",
+  "Campaign template setup for your first 3 client campaigns",
+  "Direct feedback channel for shaping agency reports and analytics",
+];
+
+const referralLoop = [
+  "Invite an agency operator",
+  "They launch a tracked campaign",
+  "Both accounts get future billing credit after paid conversion",
 ];
 
 const faqs = [
@@ -659,6 +673,72 @@ export default function Home() {
               </Link>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section
+        id="founding-offer"
+        className="border-y border-white/10 bg-zinc-950/70 py-20"
+      >
+        <div className="mx-auto grid w-full max-w-7xl gap-8 px-5 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+          <div>
+            <p className="text-sm font-bold uppercase text-rose-200">
+              Founding agency offer
+            </p>
+            <h2 className="mt-3 text-4xl font-black leading-tight text-white sm:text-5xl">
+              Bring your first clients before the market gets noisy
+            </h2>
+            <p className="mt-5 text-base leading-8 text-zinc-400">
+              Early agencies get hands-on onboarding, template help, and a say
+              in the agency reporting roadmap. The offer is designed for teams
+              already managing Instagram campaigns for multiple clients.
+            </p>
+            <Link
+              href="/login"
+              className="mt-8 inline-flex items-center justify-center gap-2 bg-rose-200 px-6 py-3 text-sm font-bold text-zinc-950 transition hover:bg-rose-100"
+            >
+              Claim founding access
+              <ArrowIcon />
+            </Link>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <article className="border border-rose-200/20 bg-rose-300/10 p-6">
+              <h3 className="text-2xl font-black text-white">
+                What founders get
+              </h3>
+              <ul className="mt-6 space-y-3">
+                {foundingOffer.map((item) => (
+                  <li key={item} className="flex gap-3 text-sm text-zinc-300">
+                    <span className="mt-0.5 text-rose-200">
+                      <CheckIcon />
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </article>
+
+            <article className="border border-white/10 bg-white/[0.035] p-6">
+              <h3 className="text-2xl font-black text-white">
+                Referral loop
+              </h3>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">
+                Referrals start as a manual founding-agency loop first, then
+                move into Stripe billing credits once abuse controls are proven.
+              </p>
+              <ol className="mt-6 space-y-3">
+                {referralLoop.map((item, index) => (
+                  <li key={item} className="flex gap-3 text-sm text-zinc-300">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center border border-cyan-200/20 text-xs font-black text-cyan-100">
+                      {index + 1}
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ol>
+            </article>
+          </div>
         </div>
       </section>
 
