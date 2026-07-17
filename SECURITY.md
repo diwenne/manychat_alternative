@@ -1,60 +1,40 @@
-# Security Policy
+# Security policy
 
-ManyChat Alternative handles Instagram account tokens, webhook payloads, billing events, and customer campaign data. Please report security issues responsibly.
+OpenReply handles Instagram access tokens, webhook payloads, and campaign data. Please report security issues responsibly.
 
-## Supported Versions
+## Supported versions
 
-The active public branch is `main`.
+The active branch is `main`. Security fixes target `main` unless a maintainer asks otherwise.
 
-Security fixes should target `main` unless a maintainer asks otherwise.
+## Reporting a vulnerability
 
-## Reporting A Vulnerability
+Do not open a public GitHub issue for a vulnerability. Send a private report to the repository owner through GitHub, or email the address on the maintainer's GitHub profile.
 
-Please do not open a public GitHub issue for a vulnerability.
+Include a description, steps to reproduce, the impact, whether tokens or user data may be exposed, and a suggested fix if you have one.
 
-Send a private report to the repository owner through GitHub, or email the maintainer address listed on the GitHub profile.
+## Sensitive areas
 
-Include:
+The parts most worth scrutiny:
 
-- A clear description of the issue.
-- Steps to reproduce.
-- Impact.
-- Whether credentials, tokens, customer data, or billing data may be exposed.
-- Suggested fix, if known.
-
-## Sensitive Areas
-
-Pay special attention to:
-
-- Instagram OAuth state verification.
-- Encrypted Instagram access tokens.
-- Meta webhook signature verification.
-- Workspace isolation.
-- Public report pages.
-- Tracked link redirects.
-- Worker retry and dedupe behavior.
-- Environment variable handling.
-
-## Dependency Audit Exceptions
-
-Production dependency audit status is tracked in [docs/production-readiness.md](docs/production-readiness.md).
-
-As of May 24, 2026, the known audit exceptions are a `postcss` advisory pulled through the current stable `next@16.2.6` release and a Prisma CLI tooling advisory through `@hono/node-server`. ManyChat Alternative does not process customer-authored CSS, and Prisma development tooling should not run on public infrastructure. Maintainers should upgrade Next.js and Prisma as soon as patched stable releases are available.
+- Instagram OAuth state verification
+- Encrypted Instagram access tokens
+- Meta webhook signature verification
+- Workspace isolation
+- Public report pages
+- Tracked link redirects
+- Worker retry and dedupe behavior
+- Environment variable handling
 
 ## Secrets
 
-Never commit:
+Never commit any of these, and rotate one if it is exposed anywhere it could be logged:
 
-- `DATABASE_URL`
-- `REDIS_URL`
-- `NEXTAUTH_SECRET`
-- `CRON_SECRET`
-- `ENCRYPTION_KEY`
+- `DATABASE_URL`, `REDIS_URL`
+- `NEXTAUTH_SECRET`, `CRON_SECRET`, `ENCRYPTION_KEY`
 - `RESEND_API_KEY`
-- `INSTAGRAM_APP_SECRET`
-- `FACEBOOK_APP_SECRET`
+- `INSTAGRAM_APP_SECRET`, `FACEBOOK_APP_SECRET`
 - Live webhook payloads that contain user data
 
 ## Disclosure
 
-We aim to acknowledge valid reports quickly and prioritize fixes based on severity and exploitability.
+Valid reports get acknowledged quickly, and fixes are prioritized by severity.

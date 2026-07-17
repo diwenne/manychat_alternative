@@ -25,19 +25,28 @@ function formatDate(iso: string): string {
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
+const COUNT_OPTIONS = [
+  { value: "25", label: "Last 25" },
+  { value: "50", label: "Last 50" },
+  { value: "100", label: "Last 100" },
+  { value: "all", label: "All time" },
+];
+
 export default function OverviewPage() {
   const [data, setData] = useState<OverviewResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedAccountId, setSelectedAccountId] = useState("all");
+  const [count, setCount] = useState("50");
 
   useEffect(() => {
     const params = new URLSearchParams();
     if (selectedAccountId !== "all") {
       params.set("instagramAccountId", selectedAccountId);
     }
+    params.set("count", count);
 
-    fetch(`/api/instagram/overview${params.size ? `?${params}` : ""}`)
+    fetch(`/api/instagram/overview?${params}`)
       .then((r) => r.json())
       .then((res) => {
         if (res.success) {
@@ -49,11 +58,16 @@ export default function OverviewPage() {
       })
       .catch(() => setError("Failed to load overview"))
       .finally(() => setLoading(false));
-  }, [selectedAccountId]);
+  }, [selectedAccountId, count]);
 
   function handleAccountChange(accountId: string) {
     setLoading(true);
     setSelectedAccountId(accountId);
+  }
+
+  function handleCountChange(next: string) {
+    setLoading(true);
+    setCount(next);
   }
 
   if (loading) {
@@ -95,20 +109,41 @@ export default function OverviewPage() {
         <div>
           <h1 className="text-lg font-semibold text-foreground">Overview</h1>
           <p className="text-sm text-muted mt-1">
-            Last {totals.posts} posts from @{data.account.username}
+            {data.requestedCount === "all" ? "All-time" : "Recent"} —{" "}
+            {totals.posts} post{totals.posts === 1 ? "" : "s"} from @
+            {data.account.username}
+            {data.truncated ? ` (capped at ${totals.posts})` : ""}
           </p>
         </div>
-        {accounts.length > 1 && (
-          <AccountSelect
-            accounts={accounts.map((a) => ({
-              id: a.id,
-              username: a.username,
-              instagramId: a.id,
-            }))}
-            value={selectedAccountId}
-            onChange={handleAccountChange}
-          />
-        )}
+        <div className="flex items-end gap-3">
+          <label className="flex flex-col gap-2 text-sm">
+            <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Range
+            </span>
+            <select
+              value={count}
+              onChange={(e) => handleCountChange(e.target.value)}
+              className="min-w-36 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-accent/40"
+            >
+              {COUNT_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          {accounts.length > 1 && (
+            <AccountSelect
+              accounts={accounts.map((a) => ({
+                id: a.id,
+                username: a.username,
+                instagramId: a.id,
+              }))}
+              value={selectedAccountId}
+              onChange={handleAccountChange}
+            />
+          )}
+        </div>
       </div>
 
       {!insightsAvailable && (

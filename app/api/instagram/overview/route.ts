@@ -3,12 +3,46 @@ import { getCurrentWorkspaceId } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
 import { getWorkspaceInstagramAccount } from "@/lib/instagram-accounts";
 import {
+  getAllUserMedia,
   getMediaInsights,
-  getUserMedia,
   PermissionError,
   type InstagramMedia,
 } from "@/lib/meta/client";
 import { decryptToken } from "@/lib/meta/oauth";
+
+// Allow time for paginated media + per-post insight calls on larger accounts.
+export const maxDuration = 60;
+
+// Safety ceiling for "all time": bounds pagination and the number of
+// per-media insight requests so we can't hammer the API or time out.
+const MAX_POSTS = 500;
+
+// How many insight requests to run at once.
+const INSIGHTS_CONCURRENCY = 8;
+
+/** Map over items with a bounded number of in-flight async operations. */
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T, index: number) => Promise<R>
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let cursor = 0;
+
+  async function worker() {
+    while (cursor < items.length) {
+      const index = cursor++;
+      results[index] = await fn(items[index], index);
+    }
+  }
+
+  const workers = Array.from(
+    { length: Math.min(limit, items.length) },
+    () => worker()
+  );
+  await Promise.all(workers);
+  return results;
+}
 
 export interface OverviewPost {
   id: string;
@@ -28,6 +62,8 @@ export interface OverviewPost {
 export interface OverviewResponse {
   account: { id: string; username: string };
   accounts: Array<{ id: string; username: string }>;
+  requestedCount: "all" | number;
+  truncated: boolean;
   insightsAvailable: boolean;
   totals: {
     posts: number;
@@ -76,22 +112,34 @@ export async function GET(request: NextRequest) {
   try {
     const accessToken = decryptToken(account.accessToken);
 
-    const limitParam = request.nextUrl.searchParams.get("limit");
-    const parsedLimit = limitParam ? Number.parseInt(limitParam, 10) : 50;
-    const limit = Number.isFinite(parsedLimit)
-      ? Math.min(Math.max(parsedLimit, 1), 50)
-      : 50;
+    // `count` is either "all" or a positive integer (last N posts).
+    const countParam = request.nextUrl.searchParams.get("count");
+    const isAll = countParam === "all";
+    const parsedCount = countParam ? Number.parseInt(countParam, 10) : NaN;
+    const requestedCount: "all" | number = isAll
+      ? "all"
+      : Number.isFinite(parsedCount)
+        ? Math.max(parsedCount, 1)
+        : 50;
 
-    const media = await getUserMedia(accessToken, limit);
+    const target = isAll
+      ? MAX_POSTS
+      : Math.min(requestedCount as number, MAX_POSTS);
+
+    const media = await getAllUserMedia(accessToken, target);
+    const truncated = media.length >= MAX_POSTS;
 
     // Likes and comments come free with basic media fields. Views / reach /
     // saved / shares require the insights permission, so fetch them per media
-    // and degrade gracefully if the token was granted before that scope.
+    // (bounded concurrency) and degrade gracefully if the token was granted
+    // before that scope.
     let insightsAvailable = false;
     let permissionDenied = false;
 
-    const insights = await Promise.all(
-      media.map(async (m) => {
+    const insights = await mapWithConcurrency(
+      media,
+      INSIGHTS_CONCURRENCY,
+      async (m) => {
         const metrics = isVideoLike(m)
           ? ["views", "reach", "saved", "shares", "total_interactions"]
           : ["reach", "saved", "shares", "total_interactions"];
@@ -103,7 +151,7 @@ export async function GET(request: NextRequest) {
           if (err instanceof PermissionError) permissionDenied = true;
           return null;
         }
-      })
+      }
     );
 
     const posts: OverviewPost[] = media.map((m, i) => {
@@ -159,6 +207,8 @@ export async function GET(request: NextRequest) {
     const data: OverviewResponse = {
       account: { id: account.id, username: account.username },
       accounts,
+      requestedCount,
+      truncated,
       insightsAvailable: insightsAvailable && !permissionDenied,
       totals,
       posts,

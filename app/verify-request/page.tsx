@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Check your email - ManyChat Alternative",
+  title: "Check your email - OpenReply",
   description: "A sign-in link was sent to your email.",
 };
 
@@ -11,7 +11,7 @@ export default function VerifyRequestPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-semibold text-foreground">
-            ManyChat Alternative
+            OpenReply
           </h1>
         </div>
 

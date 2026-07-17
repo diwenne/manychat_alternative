@@ -1,11 +1,11 @@
-# ManyChat Alternative — Local Development Services
+# OpenReply — Local Development Services
 # Run: docker-compose up -d
 
 services:
   postgres:
     image: postgres:16
     environment:
-      POSTGRES_DB: manychat-alternative
+      POSTGRES_DB: openreply
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:

@@ -92,7 +92,7 @@ export default function SeoPageShell({ config }: { config: SeoPageConfig }) {
           <div className="mt-8 overflow-hidden border border-white/10">
             <div className="grid grid-cols-[0.8fr_1fr_1fr] border-b border-white/10 bg-zinc-950 text-xs font-bold uppercase tracking-wide text-zinc-500">
               <div className="p-4">Need</div>
-              <div className="p-4 text-cyan-100">ManyChat Alternative</div>
+              <div className="p-4 text-cyan-100">OpenReply</div>
               <div className="p-4">Generic automation</div>
             </div>
             {config.comparisons.map((item) => (
@@ -166,7 +166,7 @@ export default function SeoPageShell({ config }: { config: SeoPageConfig }) {
             Turn the next high-intent comment into a private reply
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-zinc-300">
-            ManyChat Alternative is built for Instagram professional accounts, official
+            OpenReply is built for Instagram professional accounts, official
             Meta private replies, and campaign reporting teams can show clients.
           </p>
           <Link

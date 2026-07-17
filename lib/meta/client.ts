@@ -194,21 +194,56 @@ export async function getUserInfo(accessToken: string): Promise<InstagramUser> {
   return handleResponse<InstagramUser>(response);
 }
 
+const MEDIA_FIELDS =
+  "id,caption,media_type,media_product_type,media_url,thumbnail_url,timestamp,permalink,like_count,comments_count";
+
+// Instagram caps a single media page at 100 items.
+const MEDIA_PAGE_SIZE = 100;
+
 export async function getUserMedia(
   accessToken: string,
   limit = 25
 ): Promise<InstagramMedia[]> {
   const url = new URL(`${instagramGraphBase()}/me/media`);
-  url.searchParams.set(
-    "fields",
-    "id,caption,media_type,media_product_type,media_url,thumbnail_url,timestamp,permalink,like_count,comments_count"
-  );
+  url.searchParams.set("fields", MEDIA_FIELDS);
   url.searchParams.set("limit", limit.toString());
   url.searchParams.set("access_token", accessToken);
 
   const response = await fetch(url.toString());
   const data = await handleResponse<{ data: InstagramMedia[] }>(response);
   return data.data;
+}
+
+/**
+ * Fetch media by following pagination cursors until `max` items are collected
+ * or there are no more pages. Pass a large `max` for an "all time" view; the
+ * cap is a safety ceiling so an account with thousands of posts can't spin
+ * forever (and so downstream per-media insight calls stay bounded).
+ */
+export async function getAllUserMedia(
+  accessToken: string,
+  max = 500
+): Promise<InstagramMedia[]> {
+  const results: InstagramMedia[] = [];
+
+  const first = new URL(`${instagramGraphBase()}/me/media`);
+  first.searchParams.set("fields", MEDIA_FIELDS);
+  first.searchParams.set("limit", String(Math.min(MEDIA_PAGE_SIZE, max)));
+  first.searchParams.set("access_token", accessToken);
+
+  let nextUrl: string | null = first.toString();
+
+  while (nextUrl !== null && results.length < max) {
+    const response: Response = await fetch(nextUrl);
+    const page = await handleResponse<{
+      data: InstagramMedia[];
+      paging?: { next?: string };
+    }>(response);
+    results.push(...page.data);
+    nextUrl = page.paging?.next ?? null;
+  }
+
+  return results.slice(0, max);
 }
 
 /**

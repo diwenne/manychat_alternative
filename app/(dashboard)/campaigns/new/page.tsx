@@ -114,7 +114,10 @@ export default function NewCampaignPage() {
       });
   }, []);
 
-  // Restore an in-progress draft after mount (client only, avoids hydration mismatch).
+  // Restore an in-progress draft after mount (client only, avoids hydration
+  // mismatch). Reading saved form state from localStorage into React state is a
+  // legitimate use of an effect, so the set-state-in-effect rule is disabled here.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(DRAFT_KEY);
@@ -142,6 +145,7 @@ export default function NewCampaignPage() {
     }
     setHydrated(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Persist the draft so a refresh doesn't lose in-progress work.
   useEffect(() => {

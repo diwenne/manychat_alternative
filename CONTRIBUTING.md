@@ -1,50 +1,34 @@
 # Contributing
 
-Thanks for helping make ManyChat Alternative better.
+Thanks for wanting to help. OpenReply is public so the comment-to-DM engine is something you can read, run yourself, and improve.
 
-This project is public because the core Instagram comment-to-DM engine should be inspectable, self-hostable, and useful to builders. The hosted SaaS will monetize managed infrastructure, agency workflows, analytics, reports, support, and templates.
+## Ways to help
 
-## Ways To Contribute
+- Fix a bug. The DM worker and the webhook parser are the parts that matter most.
+- Improve the docs. If you hit a Meta setup quirk that is not written down, adding it to `docs/instagram-setup.md` is as valuable as a code fix. That guide is where people lose the most time.
+- Add campaign templates in `lib/templates/`.
+- Add tests. The suite runs with `npm test`.
 
-- Fix bugs.
-- Improve docs.
-- Add campaign templates.
-- Improve tests.
-- Help with production hardening.
-- Build small UI improvements.
-
-Good starting points:
-
-- [Good first issues](https://github.com/diwenne/manychat_alternative/issues?q=is%3Aissue+is%3Aopen+label%3Atype%3Agood-first-issue)
-- [Documentation issues](https://github.com/diwenne/manychat_alternative/issues?q=is%3Aissue+is%3Aopen+label%3Atype%3Adocs)
-- [Template issues](https://github.com/diwenne/manychat_alternative/issues?q=is%3Aissue+is%3Aopen+label%3Aarea%3Atemplates)
-
-## Development Setup
+## Development setup
 
 ```bash
 npm install
 docker-compose up -d
-cp .env.example .env
+cp .env.example .env      # fill in the values, see docs/self-hosting.md
 npm run db:generate
 npm run db:migrate
 npm run dev
 ```
 
-Run the worker in a second terminal:
+Run the worker in a second terminal, since it is what sends the DMs:
 
 ```bash
 npm run worker
 ```
 
-## Pull Request Rules
+## Before you open a pull request
 
-- Create a branch from `main`.
-- Use branch names like `area/short-description`.
-- Do not commit directly to `main`.
-- Link the GitHub issue in the PR body.
-- Keep PRs focused on one issue.
-
-Required checks:
+Branch from `main`, keep the change focused on one thing, and make sure these pass:
 
 ```bash
 npm run typecheck
@@ -53,40 +37,20 @@ npm test
 npm run build
 ```
 
-If a check cannot be run locally, explain why in the PR body.
+If a check cannot run in your environment, say why in the pull request body. A small, clear pull request is easier to merge than a large one that touches many things at once.
 
-## Branch Naming
+## A note on the codebase
 
-Preferred examples:
+This is Next.js 16, and some conventions differ from older versions. There are dev notes in `AGENTS.md`. When you are unsure about an API, read the relevant guide in `node_modules/next/dist/docs/` before writing against it.
 
-- `growth/github-viral-setup`
-- `hardening/production-readiness`
-- `product/public-templates`
-- `product/tracked-links-analytics`
-- `docs/meta-app-review`
+## Campaign templates
 
-## Issue Labels
+A template contribution should include a name, the target niche, a suggested post or reel, the keywords, the DM copy, and a short example. Do not include real tokens, private data, or scraped content.
 
-- `priority:p0`: launch blocker.
-- `priority:p1`: high priority.
-- `priority:p2`: important follow-up.
-- `area:*`: subsystem or roadmap area.
-- `type:*`: kind of work.
+## Reporting bugs
 
-## Campaign Templates
-
-Template contributions should include:
-
-- Template name.
-- Target niche.
-- Suggested post/reel prompt.
-- Keywords.
-- DM copy.
-- Compliance notes.
-- Example use case.
-
-Do not include private customer data, real tokens, or scraped content.
+Open an issue with what you did, what you expected, and what happened. For anything involving a webhook or a failed send, the Postgres tables describe it best: `WebhookEvent` for delivery, `DmLog` for send status, `OperationalEvent` for worker errors.
 
 ## Security
 
-Do not open public issues for vulnerabilities. See [SECURITY.md](SECURITY.md).
+Do not open a public issue for a vulnerability. See [SECURITY.md](SECURITY.md).

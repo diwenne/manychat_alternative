@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "ManyChat Alternative - Instagram Comment to DM Campaign OS",
+  title: "OpenReply - Open source Instagram comment-to-DM automation",
   description:
-    "A premium self-serve SaaS for turning Instagram keyword comments into Meta-compliant private replies, lead capture, and campaign growth.",
+    "A free, self-hosted ManyChat alternative. Turn Instagram keyword comments into automatic private replies using the official Meta API.",
 };
 
 const navLinks = [
@@ -129,7 +129,7 @@ const referralLoop = [
 
 const faqs = [
   {
-    question: "Does ManyChat Alternative use the official Meta API?",
+    question: "Does OpenReply use the official Meta API?",
     answer:
       "Yes. The product is built around Meta webhooks and Instagram private replies, not scraping, browser automation, or password sharing.",
   },
@@ -307,8 +307,8 @@ export default function Home() {
     <main className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b border-border bg-background">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-3" aria-label="ManyChat Alternative home">
-            <span className="text-lg font-bold text-white">ManyChat Alternative</span>
+          <Link href="/" className="flex items-center gap-3" aria-label="OpenReply home">
+            <span className="text-lg font-bold text-white">OpenReply</span>
           </Link>
 
           <nav className="hidden items-center gap-7 md:flex">
@@ -351,7 +351,7 @@ export default function Home() {
           </h1>
 
           <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-300">
-            ManyChat Alternative turns keyword comments on posts and reels into private
+            OpenReply turns keyword comments on posts and reels into private
             replies, campaign logs, and measurable lead capture for businesses,
             creators, and agencies.
           </p>
@@ -691,7 +691,7 @@ export default function Home() {
       <footer className="border-t border-white/10 py-8">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-5 text-sm text-zinc-500 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
           <div className="flex items-center gap-3">
-            <span>ManyChat Alternative</span>
+            <span>OpenReply</span>
           </div>
           <div className="flex flex-wrap gap-4">
             {navLinks.map((link) => (

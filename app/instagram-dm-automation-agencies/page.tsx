@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Instagram DM Automation for Agencies",
     description:
-      "Manage client Instagram comment-to-DM campaigns with ManyChat Alternative agency workspaces.",
+      "Manage client Instagram comment-to-DM campaigns with OpenReply agency workspaces.",
     url: "/instagram-dm-automation-agencies",
   },
 };

@@ -2,16 +2,16 @@ import type { Metadata } from "next";
 import LegalShell from "@/components/legal-shell";
 
 export const metadata: Metadata = {
-  title: "Data Deletion - ManyChat Alternative",
+  title: "Data Deletion - OpenReply",
   description:
-    "How ManyChat Alternative customers can disconnect Instagram and request account or campaign data deletion.",
+    "How OpenReply customers can disconnect Instagram and request account or campaign data deletion.",
 };
 
 export default function DataDeletionPage() {
   return (
     <LegalShell
       title="Data Deletion"
-      description="Use this page for Meta App Review and customer requests about removing ManyChat Alternative account, workspace, Instagram, and campaign data."
+      description="Use this page for Meta App Review and customer requests about removing OpenReply account, workspace, Instagram, and campaign data."
       updatedAt="May 24, 2026"
     >
       <section>

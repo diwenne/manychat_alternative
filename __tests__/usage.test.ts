@@ -41,7 +41,9 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-const LIMIT = Number.MAX_SAFE_INTEGER;
+// Mirrors MONTHLY_DM_LIMIT in lib/billing/usage.ts. Must stay within int4
+// range so the value can be compared against the dmsSentThisPeriod column.
+const LIMIT = 2_000_000_000;
 
 describe("reserveWorkspaceDMSend", () => {
   it("atomically increments usage when the workspace is under its limit", async () => {

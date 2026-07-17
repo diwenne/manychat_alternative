@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Manychat Alternative for Instagram Comment-to-DM Campaigns",
     description:
-      "Use ManyChat Alternative for focused Instagram comment-to-DM campaigns without a broad chatbot flow builder.",
+      "Use OpenReply for focused Instagram comment-to-DM campaigns without a broad chatbot flow builder.",
     url: "/manychat-alternative",
   },
 };

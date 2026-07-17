@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ManyChat Alternative - Instagram Comment to DM Campaign OS",
+  title: "OpenReply - Open source Instagram comment-to-DM automation",
   description:
-    "A B2B SaaS for sending Meta-compliant Instagram private replies when customers comment keywords on posts and reels.",
+    "A free, self-hosted ManyChat alternative. Send an Instagram DM automatically when someone comments a keyword on your post or reel, using the official Meta API.",
   keywords: [
     "instagram automation",
     "comment to DM",
