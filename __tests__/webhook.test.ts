@@ -208,6 +208,67 @@ describe("parseCommentEvents", () => {
     expect(events[0].commentText).toBe("");
   });
 
+  it("should ignore comments from the connected account itself", () => {
+    const payload = {
+      object: "instagram",
+      entry: [
+        {
+          id: "page_123",
+          time: 1234567890,
+          changes: [
+            {
+              field: "comments",
+              value: {
+                id: "comment_1",
+                text: "LINK",
+                from: { id: "page_123", username: "ourbrand" },
+                media: { id: "media_1" },
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    expect(parseCommentEvents(payload)).toHaveLength(0);
+  });
+
+  it("should still parse other users' comments alongside a self-comment", () => {
+    const payload = {
+      object: "instagram",
+      entry: [
+        {
+          id: "page_123",
+          time: 1234567890,
+          changes: [
+            {
+              field: "comments",
+              value: {
+                id: "comment_1",
+                text: "LINK",
+                from: { id: "page_123", username: "ourbrand" },
+                media: { id: "media_1" },
+              },
+            },
+            {
+              field: "comments",
+              value: {
+                id: "comment_2",
+                text: "LINK",
+                from: { id: "user_2", username: "user2" },
+                media: { id: "media_1" },
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    const events = parseCommentEvents(payload);
+    expect(events).toHaveLength(1);
+    expect(events[0].commenterId).toBe("user_2");
+  });
+
   it("should handle entries without changes", () => {
     const payload = {
       object: "instagram",

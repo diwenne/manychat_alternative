@@ -79,6 +79,13 @@ export function parseCommentEvents(payload: WebhookPayload): WebhookCommentEvent
         continue;
       }
 
+      // Skip the connected account's own comments and comment replies.
+      // A private reply to yourself is rejected by Meta, so queueing one
+      // only produces a failed log and wasted retries.
+      if (commenterId === entry.id) {
+        continue;
+      }
+
       events.push({
         instagramAccountId: entry.id,
         commentId,
