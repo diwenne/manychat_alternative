@@ -46,13 +46,20 @@ export default function TopBar({
         <h1 className="text-lg font-semibold">{title}</h1>
       </div>
 
-      <p className="text-sm text-muted">
-        {instagramAccountCount > 1
-          ? `${instagramAccountCount} accounts`
-          : instagramUsername
-            ? `@${instagramUsername}`
-            : "Connect Instagram"}
-      </p>
+      {instagramAccountCount > 0 ? (
+        <p className="text-sm text-muted">
+          {instagramAccountCount > 1
+            ? `${instagramAccountCount} accounts`
+            : `@${instagramUsername}`}
+        </p>
+      ) : (
+        <a
+          href="/api/instagram/connect"
+          className="text-sm font-medium px-3 py-1.5 rounded bg-accent text-white hover:bg-accent-hover"
+        >
+          Connect Instagram
+        </a>
+      )}
     </header>
   );
 }
