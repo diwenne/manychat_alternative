@@ -19,6 +19,8 @@ const createAutomationSchema = z.object({
   postUrl: z.string().url().optional().nullable(),
   keywords: z.array(z.string().min(1).max(50)).min(1).max(10),
   dmMessage: z.string().min(1).max(1000),
+  publicReplyEnabled: z.boolean().optional().default(false),
+  publicReplyMessage: z.string().max(1000).optional().nullable(),
   trackedDestinationUrl: z.string().url().optional().nullable(),
   isActive: z.boolean().optional().default(true),
   wholeWordMatch: z.boolean().optional().default(true),
@@ -29,6 +31,8 @@ const updateAutomationSchema = z.object({
   goal: z.string().min(1).max(120).optional().nullable(),
   keywords: z.array(z.string().min(1).max(50)).min(1).max(10).optional(),
   dmMessage: z.string().min(1).max(1000).optional(),
+  publicReplyEnabled: z.boolean().optional(),
+  publicReplyMessage: z.string().max(1000).optional().nullable(),
   isActive: z.boolean().optional(),
   wholeWordMatch: z.boolean().optional(),
   reportShareEnabled: z.boolean().optional(),
@@ -261,6 +265,10 @@ export async function POST(request: NextRequest) {
       postUrl: parsed.data.postUrl,
       keywords: parsed.data.keywords,
       dmMessage: parsed.data.dmMessage,
+      publicReplyEnabled: parsed.data.publicReplyEnabled,
+      publicReplyMessage: parsed.data.publicReplyEnabled
+        ? parsed.data.publicReplyMessage || null
+        : null,
       isActive: parsed.data.isActive,
       wholeWordMatch: parsed.data.wholeWordMatch,
       workspaceId,

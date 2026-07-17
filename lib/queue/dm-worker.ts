@@ -1,7 +1,7 @@
 import { Worker, type Job } from "bullmq";
 import { getDMQueue, getRedisConnection, type ProcessCommentJob } from "./client";
 import { prisma } from "@/lib/db/client";
-import { MetaApiError, sendPrivateReply } from "@/lib/meta/client";
+import { MetaApiError, sendCommentReply, sendPrivateReply } from "@/lib/meta/client";
 import { decryptToken } from "@/lib/meta/oauth";
 import { matchKeywords } from "@/lib/utils/keyword-matcher";
 import { reserveDMSlot } from "@/lib/utils/rate-limiter";
@@ -294,6 +294,24 @@ async function processComment(job: Job<ProcessCommentJob>): Promise<void> {
           errorMessage: null,
         },
       });
+
+      // Optional public reply under the comment. Best-effort: a failure here
+      // must not fail the DM job, since the private reply already succeeded.
+      if (automation.publicReplyEnabled && automation.publicReplyMessage) {
+        try {
+          const publicReply = renderMessageWithTracking({
+            message: automation.publicReplyMessage,
+            commenterName,
+            trackedLinks: automation.trackedLinks,
+          });
+          await sendCommentReply(accessToken, commentId, publicReply);
+        } catch (error) {
+          console.error(
+            "[DM Worker] Public comment reply failed:",
+            formatError(error)
+          );
+        }
+      }
     } catch (error) {
       await releaseWorkspaceDMReservation(
         automation.workspaceId,

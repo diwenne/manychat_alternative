@@ -155,6 +155,8 @@ model Automation {
   postUrl        String?
   keywords       String[]
   dmMessage      String
+  publicReplyEnabled Boolean @default(false)
+  publicReplyMessage String?
   isActive       Boolean @default(true)
   wholeWordMatch Boolean @default(true)
   reportShareSlug    String? @unique

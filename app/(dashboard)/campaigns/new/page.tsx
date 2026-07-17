@@ -30,6 +30,8 @@ interface CampaignDraft {
   trackedDestinationUrl: string;
   wholeWordMatch: boolean;
   isActive: boolean;
+  publicReplyEnabled: boolean;
+  publicReplyMessage: string;
 }
 
 export default function NewCampaignPage() {
@@ -64,6 +66,8 @@ export default function NewCampaignPage() {
   );
   const [wholeWordMatch, setWholeWordMatch] = useState(true);
   const [isActive, setIsActive] = useState(true);
+  const [publicReplyEnabled, setPublicReplyEnabled] = useState(false);
+  const [publicReplyMessage, setPublicReplyMessage] = useState("");
   const [hydrated, setHydrated] = useState(false);
   const [attempted, setAttempted] = useState(false);
 
@@ -128,6 +132,10 @@ export default function NewCampaignPage() {
         if (typeof draft.wholeWordMatch === "boolean")
           setWholeWordMatch(draft.wholeWordMatch);
         if (typeof draft.isActive === "boolean") setIsActive(draft.isActive);
+        if (typeof draft.publicReplyEnabled === "boolean")
+          setPublicReplyEnabled(draft.publicReplyEnabled);
+        if (draft.publicReplyMessage)
+          setPublicReplyMessage(draft.publicReplyMessage);
       }
     } catch {
       // ignore malformed draft
@@ -149,6 +157,8 @@ export default function NewCampaignPage() {
       trackedDestinationUrl,
       wholeWordMatch,
       isActive,
+      publicReplyEnabled,
+      publicReplyMessage,
     };
     try {
       window.localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
@@ -167,6 +177,8 @@ export default function NewCampaignPage() {
     trackedDestinationUrl,
     wholeWordMatch,
     isActive,
+    publicReplyEnabled,
+    publicReplyMessage,
   ]);
 
   function handleAccountChange(accountId: string) {
@@ -210,6 +222,8 @@ export default function NewCampaignPage() {
           postUrl: postUrl ?? null,
           keywords,
           dmMessage,
+          publicReplyEnabled,
+          publicReplyMessage: publicReplyEnabled ? publicReplyMessage : null,
           trackedDestinationUrl: trackedDestinationUrl || null,
           wholeWordMatch,
           isActive,
@@ -365,6 +379,43 @@ export default function NewCampaignPage() {
             Use <code className="px-1 py-0.5 rounded bg-surface-hover text-accent font-mono text-[11px]">{"{username}"}</code> to
             personalize with the commenter&apos;s name
           </p>
+        </div>
+
+        {/* Public comment reply */}
+        <div className="space-y-3">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <button
+              type="button"
+              onClick={() => setPublicReplyEnabled(!publicReplyEnabled)}
+              className={`relative w-11 h-6 rounded-full transition-colors ${
+                publicReplyEnabled ? "bg-accent" : "bg-zinc-700"
+              }`}
+            >
+              <span
+                className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
+                  publicReplyEnabled ? "left-6" : "left-1"
+                }`}
+              />
+            </button>
+            <div>
+              <span className="text-sm font-medium text-foreground">
+                Also reply to the comment publicly
+              </span>
+              <p className="text-xs text-muted">
+                Posts a visible reply under the comment, on top of the DM.
+              </p>
+            </div>
+          </label>
+          {publicReplyEnabled && (
+            <textarea
+              value={publicReplyMessage}
+              onChange={(e) => setPublicReplyMessage(e.target.value)}
+              placeholder="Sent you a DM! 📩"
+              rows={2}
+              className="w-full px-4 py-3 rounded bg-surface border border-border text-sm text-foreground placeholder:text-zinc-500 focus:border-accent/40 focus:outline-none transition-colors resize-none"
+              maxLength={1000}
+            />
+          )}
         </div>
 
         {/* Tracked Link */}
