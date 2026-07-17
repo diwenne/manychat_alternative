@@ -20,6 +20,7 @@ interface Campaign {
   dmMessage: string;
   isActive: boolean;
   wholeWordMatch: boolean;
+  instagramAccountId: string;
   instagramAccount: {
     username: string;
     instagramId: string;
@@ -51,6 +52,9 @@ export default function CampaignsPage() {
   const [accounts, setAccounts] = useState<AccountOption[]>([]);
   const [selectedAccountId, setSelectedAccountId] = useState("all");
   const [loading, setLoading] = useState(true);
+  // postId -> current thumbnail URL, fetched live (Instagram URLs expire, so
+  // they are never stored on the campaign).
+  const [thumbnails, setThumbnails] = useState<Record<string, string>>({});
 
   const fetchAutomations = useCallback(async () => {
     try {
@@ -83,6 +87,40 @@ export default function CampaignsPage() {
     }, 0);
     return () => window.clearTimeout(timer);
   }, [fetchAutomations]);
+
+  // Fetch fresh post thumbnails for the accounts in view and map them by postId.
+  useEffect(() => {
+    if (automations.length === 0) return;
+    let cancelled = false;
+    const accountIds = Array.from(
+      new Set(automations.map((a) => a.instagramAccountId))
+    );
+
+    Promise.all(
+      accountIds.map((accountId) =>
+        fetch(`/api/instagram/posts?instagramAccountId=${accountId}&limit=50`)
+          .then((res) => res.json())
+          .then((payload) =>
+            payload.success ? (payload.data as { id: string; media_url?: string; thumbnail_url?: string }[]) : []
+          )
+          .catch(() => [])
+      )
+    ).then((lists) => {
+      if (cancelled) return;
+      const map: Record<string, string> = {};
+      for (const list of lists) {
+        for (const media of list) {
+          const url = media.thumbnail_url ?? media.media_url;
+          if (url) map[media.id] = url;
+        }
+      }
+      setThumbnails(map);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [automations]);
 
   function handleAccountChange(accountId: string) {
     setLoading(true);
@@ -190,6 +228,24 @@ export default function CampaignsPage() {
         {automations.map((auto) => (
           <div key={auto.id} className="panel rounded p-6 hover:border-border-hover transition-all">
             <div className="flex items-start justify-between gap-4">
+              {thumbnails[auto.postId] && (
+                <a
+                  href={auto.postUrl ?? "#"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="shrink-0"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={thumbnails[auto.postId]}
+                    alt="Campaign post"
+                    className="w-16 h-16 rounded object-cover border border-border"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                </a>
+              )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-3">
                   <h3 className="text-base font-semibold truncate">{auto.name}</h3>
@@ -344,6 +400,14 @@ export default function CampaignsPage() {
                     `}
                   />
                 </button>
+
+                {/* Edit */}
+                <Link
+                  href={`/campaigns/${auto.id}/edit`}
+                  className="px-2 py-1 rounded text-sm text-muted hover:text-foreground"
+                >
+                  Edit
+                </Link>
 
                 {/* Delete */}
                 <button
