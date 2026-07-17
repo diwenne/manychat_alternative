@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getEffectivePlan, PLAN_LIMITS } from "@/lib/billing/plans";
 import { prisma } from "@/lib/db/client";
 import {
   buildInvitationUrl,
@@ -115,57 +114,10 @@ export async function POST(request: NextRequest) {
   }
 
   const email = normalizeInvitationEmail(parsed.data.email);
-  const [existingUser, existingInvitation, currentMemberCount, pendingInviteCount] =
-    await Promise.all([
-      prisma.user.findUnique({
-        where: { email },
-        select: { id: true },
-      }),
-      prisma.workspaceInvitation.findUnique({
-        where: {
-          workspaceId_email: {
-            workspaceId: context.workspaceId,
-            email,
-          },
-        },
-        select: { id: true, status: true },
-      }),
-      prisma.workspaceMember.count({
-        where: { workspaceId: context.workspaceId },
-      }),
-      prisma.workspaceInvitation.count({
-        where: { workspaceId: context.workspaceId, status: "PENDING" },
-      }),
-    ]);
-  const existingMembership = existingUser
-    ? await prisma.workspaceMember.findUnique({
-        where: {
-          workspaceId_userId: {
-            workspaceId: context.workspaceId,
-            userId: existingUser.id,
-          },
-        },
-      })
-    : null;
-  const effectivePlan = getEffectivePlan(
-    context.workspace.plan,
-    context.workspace.subscriptionStatus
-  );
-  const limit = PLAN_LIMITS[effectivePlan].maxWorkspaceMembers;
-
-  if (
-    !existingMembership &&
-    existingInvitation?.status !== "PENDING" &&
-    currentMemberCount + pendingInviteCount >= limit
-  ) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: `Plan limit reached. Your ${effectivePlan} plan allows ${limit} workspace member(s).`,
-      },
-      { status: 403 }
-    );
-  }
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true },
+  });
 
   if (existingUser) {
     await prisma.workspaceMember.upsert({

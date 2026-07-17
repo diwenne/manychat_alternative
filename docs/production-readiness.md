@@ -18,7 +18,6 @@ The diagnostics surface includes:
 - Worker heartbeat and recent worker alerts.
 - Queue counts for waiting, active, delayed, and failed jobs.
 - Failed Meta webhook events.
-- Recent Stripe billing events.
 - Failed or skipped DM logs.
 - Token refresh failures from the cron job.
 - Operational event timeline.
@@ -74,5 +73,4 @@ Dev/build tooling advisories should still be tracked before public contributor c
 8. Send a signed Meta webhook test payload and confirm one BullMQ job is queued.
 9. Comment the keyword from a test user and confirm one private reply is sent.
 10. Confirm `/logs` shows one `SENT` log and `/diagnostics` has no new failures.
-11. Trigger Stripe test checkout and confirm the plan changes only after the Stripe webhook.
-12. Trigger `/api/cron/refresh-tokens` with `Authorization: Bearer CRON_SECRET` and confirm token failures appear in diagnostics.
+11. Trigger `/api/cron/refresh-tokens` with `Authorization: Bearer CRON_SECRET` and confirm token failures appear in diagnostics.

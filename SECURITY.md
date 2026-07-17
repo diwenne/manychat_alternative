@@ -29,7 +29,6 @@ Pay special attention to:
 - Instagram OAuth state verification.
 - Encrypted Instagram access tokens.
 - Meta webhook signature verification.
-- Stripe webhook signature verification.
 - Workspace isolation.
 - Public report pages.
 - Tracked link redirects.
@@ -52,8 +51,6 @@ Never commit:
 - `CRON_SECRET`
 - `ENCRYPTION_KEY`
 - `RESEND_API_KEY`
-- `STRIPE_SECRET_KEY`
-- `STRIPE_WEBHOOK_SECRET`
 - `INSTAGRAM_APP_SECRET`
 - `FACEBOOK_APP_SECRET`
 - Live webhook payloads that contain user data

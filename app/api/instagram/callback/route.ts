@@ -35,14 +35,6 @@ export async function GET(request: NextRequest) {
       workspaceId: state.workspaceId,
       userId: session.user.id,
     },
-    include: {
-      workspace: {
-        select: {
-          plan: true,
-          subscriptionStatus: true,
-        },
-      },
-    },
   });
 
   if (!membership || !canManageWorkspace(membership.role)) {
@@ -60,17 +52,13 @@ export async function GET(request: NextRequest) {
     const userInfo = await getUserInfo(longLivedToken);
     const connection = await canConnectInstagramAccount({
       workspaceId: state.workspaceId,
-      plan: membership.workspace.plan,
-      subscriptionStatus: membership.workspace.subscriptionStatus,
       instagramId: userInfo.id,
     });
 
     if (!connection.allowed) {
-      const reason =
-        connection.reason === "already_connected"
-          ? "already_connected"
-          : "account_limit";
-      return NextResponse.redirect(`${baseUrl}/settings?instagram=${reason}`);
+      return NextResponse.redirect(
+        `${baseUrl}/settings?instagram=already_connected`
+      );
     }
 
     const encryptedToken = encryptToken(longLivedToken);

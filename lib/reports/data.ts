@@ -45,8 +45,6 @@ export async function getCampaignReportBySlug(shareSlug: string) {
       workspace: {
         select: {
           name: true,
-          plan: true,
-          subscriptionStatus: true,
         },
       },
       instagramAccount: {
@@ -155,10 +153,7 @@ export async function getCampaignReportBySlug(shareSlug: string) {
     shareSlug: automation.reportShareSlug,
     reportUrl: buildReportUrl(automation.reportShareSlug),
     generatedAt: new Date(),
-    branded: isReportBranded(
-      automation.workspace.plan,
-      automation.workspace.subscriptionStatus
-    ),
+    branded: isReportBranded(),
     workspace: {
       name: automation.workspace.name,
     },

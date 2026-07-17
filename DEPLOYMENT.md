@@ -19,10 +19,6 @@ Copy `.env.example` and set every value in Vercel and Railway:
 - `ENCRYPTION_KEY`
 - `RESEND_API_KEY`
 - `EMAIL_FROM`
-- `STRIPE_SECRET_KEY`
-- `STRIPE_WEBHOOK_SECRET`
-- `STRIPE_PRICE_PRO`
-- `STRIPE_PRICE_AGENCY`
 - `META_GRAPH_API_VERSION`
 - `INSTAGRAM_APP_ID`
 - `INSTAGRAM_APP_SECRET`
@@ -63,24 +59,7 @@ Start command:
 npm run worker
 ```
 
-Use the same `DATABASE_URL`, `REDIS_URL`, Meta, Stripe, and encryption environment variables as the Vercel app.
-
-## Stripe
-
-1. Create monthly subscription prices for Pro and Agency.
-2. Put the price IDs into `STRIPE_PRICE_PRO` and `STRIPE_PRICE_AGENCY`.
-3. Add a webhook endpoint pointing to:
-
-```text
-https://your-domain.com/api/stripe/webhook
-```
-
-Subscribe to:
-
-- `checkout.session.completed`
-- `customer.subscription.created`
-- `customer.subscription.updated`
-- `customer.subscription.deleted`
+Use the same `DATABASE_URL`, `REDIS_URL`, Meta, and encryption environment variables as the Vercel app.
 
 ## Meta
 

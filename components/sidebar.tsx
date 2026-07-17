@@ -63,14 +63,12 @@ interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
   workspaceName: string;
-  plan: string;
 }
 
 export default function Sidebar({
   isOpen,
   onClose,
   workspaceName,
-  plan,
 }: SidebarProps) {
   const pathname = usePathname();
 
@@ -145,7 +143,7 @@ export default function Sidebar({
               <p className="text-sm font-medium text-foreground truncate">
                 {workspaceName}
               </p>
-              <p className="text-xs text-muted truncate">{plan} Plan</p>
+              <p className="text-xs text-muted truncate">Self-hosted</p>
             </div>
           </div>
         </div>

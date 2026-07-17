@@ -16,7 +16,6 @@ Status: merged through issue [#14](https://github.com/im-anishraj/instagram-comm
 - Keyword campaigns.
 - Meta webhook processing.
 - BullMQ worker.
-- Stripe subscriptions.
 - Vercel cron.
 - Landing page.
 - Production deployment docs.

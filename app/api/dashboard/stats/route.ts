@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentWorkspaceId } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
-import { getEffectivePlan, PLAN_LIMITS } from "@/lib/billing/plans";
 import {
   calculateCtr,
   normalizeTopKeywords,
@@ -52,8 +51,6 @@ export async function GET(request: NextRequest) {
       where: { id: workspaceId },
       select: {
         name: true,
-        plan: true,
-        subscriptionStatus: true,
         dmsSentThisPeriod: true,
       },
     }),
@@ -158,9 +155,6 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const effectivePlan = workspace
-    ? getEffectivePlan(workspace.plan, workspace.subscriptionStatus)
-    : "FREE";
   const monthlyStatusSummary = summarizeDmStatuses(
     dmStatusCountsThisMonth.map((row) => ({
       status: row.status,
@@ -181,8 +175,6 @@ export async function GET(request: NextRequest) {
       instagramAccount,
       instagramAccounts,
       selectedInstagramAccountId: selectedAccountId,
-      plan: effectivePlan,
-      planLimits: PLAN_LIMITS[effectivePlan],
       totalAutomations,
       activeAutomations,
       dmsSentToday,

@@ -1,6 +1,4 @@
 import { randomBytes } from "node:crypto";
-import type { Plan, SubscriptionStatus } from "@/app/generated/prisma/client";
-import { getEffectivePlan } from "@/lib/billing/plans";
 
 export function generateReportShareSlug() {
   return randomBytes(9).toString("base64url");
@@ -16,9 +14,7 @@ export function buildReportUrl(slug: string, baseUrl?: string) {
   return `${resolvedBaseUrl.replace(/\/$/, "")}/reports/${slug}`;
 }
 
-export function isReportBranded(
-  plan: Plan,
-  subscriptionStatus: SubscriptionStatus
-) {
-  return getEffectivePlan(plan, subscriptionStatus) === "FREE";
+// Self-hosted build: reports are never branded.
+export function isReportBranded() {
+  return false;
 }

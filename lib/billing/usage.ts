@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/db/client";
-import { getEffectivePlan, PLAN_LIMITS } from "@/lib/billing/plans";
 import type { Prisma } from "@/app/generated/prisma/client";
+
+// Self-hosted build: usage is still counted per month so the dashboard can
+// report volume, but no cap is enforced. Meta's own rate limits apply instead.
+const MONTHLY_DM_LIMIT = Number.MAX_SAFE_INTEGER;
 
 function getMonthStart(date = new Date()): Date {
   return new Date(date.getFullYear(), date.getMonth(), 1);
@@ -49,8 +52,6 @@ export async function reserveWorkspaceDMSend(
     const workspace = await tx.workspace.findUnique({
       where: { id: workspaceId },
       select: {
-        plan: true,
-        subscriptionStatus: true,
         usagePeriodStart: true,
         dmsSentThisPeriod: true,
       },
@@ -66,11 +67,7 @@ export async function reserveWorkspaceDMSend(
       };
     }
 
-    const effectivePlan = getEffectivePlan(
-      workspace.plan,
-      workspace.subscriptionStatus
-    );
-    const limit = PLAN_LIMITS[effectivePlan].maxDMsPerMonth;
+    const limit = MONTHLY_DM_LIMIT;
 
     if (workspace.dmsSentThisPeriod >= limit) {
       return {
@@ -128,8 +125,6 @@ export async function canSendDMForWorkspace(workspaceId: string): Promise<{
   const workspace = await prisma.workspace.findUnique({
     where: { id: workspaceId },
     select: {
-      plan: true,
-      subscriptionStatus: true,
       dmsSentThisPeriod: true,
     },
   });
@@ -138,11 +133,7 @@ export async function canSendDMForWorkspace(workspaceId: string): Promise<{
     return { allowed: false, remaining: 0, limit: 0 };
   }
 
-  const effectivePlan = getEffectivePlan(
-    workspace.plan,
-    workspace.subscriptionStatus
-  );
-  const limit = PLAN_LIMITS[effectivePlan].maxDMsPerMonth;
+  const limit = MONTHLY_DM_LIMIT;
   const remaining = Math.max(0, limit - workspace.dmsSentThisPeriod);
 
   return {

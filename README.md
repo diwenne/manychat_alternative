@@ -1,10 +1,12 @@
-# CampaignCue
+# manychat_alternative
 
-Open-source Instagram comment-to-DM campaign OS for businesses, creators, and agencies.
+A self-hosted ManyChat alternative for Instagram comment-to-DM automation.
 
-CampaignCue turns comments like `LINK`, `PRICE`, or `GUIDE` into Meta-compliant private replies. The core engine is MIT licensed and self-hostable. The hosted SaaS layer is being built for agencies that want campaign templates, analytics, client reports, and managed reliability.
+Someone comments a keyword like `LINK`, `PRICE`, or `GUIDE` on your post or reel, and they get a DM automatically. Turns comments into Meta-compliant private replies.
 
-[Templates](app/templates) | [Roadmap](ROADMAP.md) | [Deployment](DEPLOYMENT.md) | [Referral plan](docs/referral-program.md) | [Production readiness](docs/production-readiness.md) | [Contributing](CONTRIBUTING.md) | [Security](SECURITY.md) | [Open-core model](docs/open-core.md)
+This is a fork of [CampaignCue](https://github.com/im-anishraj/instagram-comment-to-dm) with the Stripe billing layer and all plan limits removed — no subscriptions, no checkout, no usage caps. Campaigns, DMs, and connected Instagram accounts are unlimited.
+
+[Templates](app/templates) | [Deployment](DEPLOYMENT.md) | [Production readiness](docs/production-readiness.md) | [Security](SECURITY.md)
 
 ## Why This Exists
 
@@ -13,12 +15,12 @@ Instagram comment-to-DM is one of the clearest social-commerce loops:
 ```text
 Customer comments "LINK" on a post or reel
 Meta sends a webhook
-CampaignCue matches the keyword
+The app matches the keyword
 The worker sends a private reply using the comment ID
 The business gets a warm conversation
 ```
 
-Most tools in this market are broad chatbot platforms. CampaignCue is intentionally narrower: a focused campaign operating system for Instagram comment-triggered DMs.
+Most tools in this market are broad chatbot platforms. This one is intentionally narrower: a focused campaign tool for Instagram comment-triggered DMs.
 
 ## Current Product
 
@@ -28,9 +30,8 @@ Most tools in this market are broad chatbot platforms. CampaignCue is intentiona
 - Meta webhook verification and event storage.
 - BullMQ worker for private reply delivery.
 - Idempotent DM logs per campaign/comment.
-- Atomic monthly usage reservations and Redis-backed hourly DM reservations.
-- Stripe Checkout, Customer Portal, and subscription webhooks.
-- Plan limits for campaigns and monthly DMs.
+- Redis-backed hourly DM rate limiting (protects against Meta throttling).
+- Monthly DM usage counting for the dashboard, with no cap enforced.
 - Vercel cron for token refresh and usage maintenance.
 - Health checks and authenticated production diagnostics.
 - Public Privacy, Terms, Data Deletion, and Meta App Review support pages.
@@ -54,29 +55,6 @@ Then open:
 http://localhost:3000
 ```
 
-Screenshots and GIFs are planned in issue [#17](https://github.com/im-anishraj/instagram-comment-to-dm/issues/17). Good launch assets to add:
-
-- Landing page hero screenshot.
-- Dashboard overview screenshot.
-- Campaign builder screenshot.
-- Logs page screenshot.
-- 30 second "comment LINK -> private reply" demo GIF using a Meta test account.
-
-## Hosted SaaS
-
-The hosted product will focus on agencies and campaign teams:
-
-- Managed Vercel/Railway infrastructure.
-- Public campaign templates.
-- Tracked links and click analytics.
-- Shareable client reports.
-- Multi-account agency workspaces.
-- Founding agency offer and referral-program plan.
-- SEO landing pages for high-intent Instagram DM automation searches.
-- Priority support and onboarding.
-
-The core remains public so builders can self-host, audit, fork, and contribute.
-
 ## Self-Host Quick Start
 
 ### Requirements
@@ -86,8 +64,7 @@ The core remains public so builders can self-host, audit, fork, and contribute.
 - Redis
 - Meta Developer App
 - Instagram Business or Creator account
-- Resend account for magic-link email
-- Stripe account for subscriptions
+- Resend account for magic-link email (free tier)
 
 ### Install
 
@@ -119,10 +96,6 @@ Fill in all required values:
 - `ENCRYPTION_KEY`
 - `RESEND_API_KEY`
 - `EMAIL_FROM`
-- `STRIPE_SECRET_KEY`
-- `STRIPE_WEBHOOK_SECRET`
-- `STRIPE_PRICE_PRO`
-- `STRIPE_PRICE_AGENCY`
 - `META_GRAPH_API_VERSION`
 - `INSTAGRAM_APP_ID`
 - `INSTAGRAM_APP_SECRET`
@@ -151,30 +124,15 @@ npm run worker
 
 For production deployment, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
-## Roadmap
+## Meta App Setup
 
-The public launch roadmap is tracked in GitHub issues:
+The Meta side is the only part that can't be skipped:
 
-- [#7 Production readiness](https://github.com/im-anishraj/instagram-comment-to-dm/issues/7) - done
-- [#8 Campaign OS repositioning](https://github.com/im-anishraj/instagram-comment-to-dm/issues/8) - done
-- [#9 Public campaign templates](https://github.com/im-anishraj/instagram-comment-to-dm/issues/9) - done
-- [#10 Tracked links and analytics](https://github.com/im-anishraj/instagram-comment-to-dm/issues/10) - done
-- [#11 Shareable client reports](https://github.com/im-anishraj/instagram-comment-to-dm/issues/11) - done
-- [#12 Agency multi-account support](https://github.com/im-anishraj/instagram-comment-to-dm/issues/12) - done
-- [#13 Founding agency offer and referrals](https://github.com/im-anishraj/instagram-comment-to-dm/issues/13) - done
-- [#14 SEO landing pages](https://github.com/im-anishraj/instagram-comment-to-dm/issues/14) - done
+1. Create a Meta Developer App and add the Instagram product.
+2. Point the webhook at `https://your-domain.com/api/webhook` using your `WEBHOOK_VERIFY_TOKEN`, and subscribe to the `comments` field.
+3. Connect an Instagram Business or Creator account in Settings.
 
-See [ROADMAP.md](ROADMAP.md) for the grouped plan.
-
-## Good First Issues
-
-Want to help? Start with the public issue list:
-
-- [Good first issues](https://github.com/im-anishraj/instagram-comment-to-dm/issues?q=is%3Aissue+is%3Aopen+label%3Atype%3Agood-first-issue)
-- [Documentation issues](https://github.com/im-anishraj/instagram-comment-to-dm/issues?q=is%3Aissue+is%3Aopen+label%3Atype%3Adocs)
-- [Template issues](https://github.com/im-anishraj/instagram-comment-to-dm/issues?q=is%3Aissue+is%3Aopen+label%3Aarea%3Atemplates)
-
-If you build a campaign template that works for your niche, open an issue or pull request.
+While the app is in development mode it works against your own account and any accounts added as testers. App Review is only needed to send DMs on behalf of other people's accounts.
 
 ## Development Checks
 
@@ -187,14 +145,6 @@ npm test
 npm run build
 ```
 
-## Community
-
-- Use GitHub Issues for bugs, roadmap tasks, and feature requests.
-- Use GitHub Discussions for launch ideas, self-hosting questions, and campaign templates.
-- Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
-
 ## License
 
-MIT. See [LICENSE](LICENSE).
-
-The open-source core is MIT licensed. The hosted SaaS, managed infrastructure, support, and future agency features are monetized separately. See [docs/open-core.md](docs/open-core.md).
+MIT. See [LICENSE](LICENSE). Forked from [CampaignCue](https://github.com/im-anishraj/instagram-comment-to-dm), also MIT.

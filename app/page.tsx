@@ -88,7 +88,7 @@ const platformFeatures = [
   "Email magic-link signup",
   "Workspace-based tenancy",
   "Agency multi-account support",
-  "Stripe-backed plan limits",
+  "No plan limits — fully self-hosted",
   "Encrypted Instagram tokens",
   "Webhook event storage",
   "Queue-backed delivery worker",
@@ -98,41 +98,18 @@ const platformFeatures = [
 
 const pricingTiers = [
   {
-    name: "Free",
+    name: "Self-hosted",
     price: "$0",
-    label: "Start testing",
-    description: "For validating one keyword campaign.",
-    features: ["1 campaign", "100 DMs per month", "Email sign-in", "Basic DM logs"],
-    cta: "Start free",
-    featured: false,
-  },
-  {
-    name: "Pro",
-    price: "$19",
-    label: "Most popular",
-    description: "For brands and creators running repeatable launches.",
-    features: [
-      "10 campaigns",
-      "2,000 DMs per month",
-      "Stripe billing portal",
-      "Daily token maintenance",
-    ],
-    cta: "Start Pro",
-    featured: true,
-  },
-  {
-    name: "Agency",
-    price: "$49",
-    label: "Higher volume",
-    description: "For operators managing bigger campaign pipelines.",
+    label: "Everything included",
+    description: "Run it on your own infrastructure with no limits.",
     features: [
       "Unlimited campaigns",
-      "10 Instagram accounts",
-      "10,000 DMs per month",
+      "Unlimited DMs per month",
+      "Unlimited Instagram accounts",
       "Queue-backed worker",
       "Member roles and reports",
     ],
-    cta: "Start Agency",
+    cta: "Get started",
     featured: false,
   },
 ];
@@ -157,9 +134,9 @@ const faqs = [
       "Yes. The product is built around Meta webhooks and Instagram private replies, not scraping, browser automation, or password sharing.",
   },
   {
-    question: "What happens when I hit my monthly DM limit?",
+    question: "Is there a monthly DM limit?",
     answer:
-      "The worker checks workspace plan limits before sending. Over-limit replies are skipped and logged so operators can see what happened.",
+      "No. This build is self-hosted with no plan caps. An hourly rate limit still applies to stay within Meta's own messaging limits, and any throttled reply is logged so you can see what happened.",
   },
   {
     question: "Can users sign up without Instagram first?",
@@ -475,8 +452,8 @@ export default function Home() {
               <BuilderPreview />
               <div className="grid grid-cols-2 gap-4">
                 <div className="border border-white/10 bg-zinc-950 p-4">
-                  <p className="text-xs text-zinc-500">Plan guard</p>
-                  <p className="mt-2 text-lg font-bold text-white">2,000/mo</p>
+                  <p className="text-xs text-zinc-500">Monthly DMs</p>
+                  <p className="mt-2 text-lg font-bold text-white">Unlimited</p>
                 </div>
                 <div className="border border-white/10 bg-zinc-950 p-4">
                   <p className="text-xs text-zinc-500">Worker</p>
@@ -547,7 +524,7 @@ export default function Home() {
             </h2>
             <p className="mt-5 text-base leading-8 text-zinc-400">
               Every comment event becomes traceable: queued, matched, sent,
-              skipped, failed, rate-limited, or blocked by plan limits.
+              skipped, failed, or rate-limited.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {platformFeatures.slice(0, 4).map((feature) => (
@@ -593,7 +570,7 @@ export default function Home() {
             </h2>
             <p className="mt-5 text-base leading-8 text-zinc-400">
               The system is designed around official APIs, encrypted tokens,
-              idempotent queue processing, and Stripe-provisioned plans.
+              and idempotent queue processing.
             </p>
           </div>
 
@@ -620,8 +597,7 @@ export default function Home() {
             Free to test, simple to scale
           </h2>
           <p className="mt-5 text-base leading-8 text-zinc-400">
-            Each plan maps directly to campaign count and monthly DM volume.
-            Stripe webhooks provision the workspace plan after checkout.
+            Self-hosted and free. No plan tiers, no usage caps, no checkout.
           </p>
         </div>
 
@@ -731,8 +707,8 @@ export default function Home() {
                 Referral loop
               </h3>
               <p className="mt-3 text-sm leading-6 text-zinc-400">
-                Referrals start as a manual founding-agency loop first, then
-                move into Stripe billing credits once abuse controls are proven.
+                Referrals start as a manual founding-agency loop first, with
+                credits handled manually while abuse controls are proven.
               </p>
               <ol className="mt-6 space-y-3">
                 {referralLoop.map((item, index) => (

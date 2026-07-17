@@ -28,12 +28,6 @@ interface DiagnosticsData {
     errorMessage: string | null;
     createdAt: string;
   }>;
-  billingEvents: Array<{
-    id: string;
-    stripeEventId: string;
-    type: string;
-    processedAt: string;
-  }>;
   dmFailures: Array<{
     id: string;
     status: string;
@@ -271,24 +265,6 @@ export default function DiagnosticsPage() {
           )}
         </Section>
 
-        <Section title="Billing Events">
-          {data?.billingEvents.length ? (
-            <div className="space-y-3">
-              {data.billingEvents.map((event) => (
-                <div key={event.id} className="border-b border-border pb-3 last:border-0">
-                  <p className="text-sm font-semibold text-foreground">
-                    {event.type}
-                  </p>
-                  <p className="mt-1 truncate text-xs text-muted">
-                    {event.stripeEventId} · {formatDate(event.processedAt)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <EmptyState label="No billing events yet." />
-          )}
-        </Section>
       </div>
 
       <Section title="Operational Event Timeline">

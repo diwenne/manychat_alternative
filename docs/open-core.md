@@ -16,7 +16,6 @@ The MIT core includes:
 - Keyword matching.
 - Private reply worker.
 - DM logs.
-- Stripe subscription foundation.
 - Deployment documentation.
 
 ## Hosted SaaS Value

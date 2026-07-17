@@ -30,8 +30,8 @@ export default function PrivacyPage() {
         <p className="mt-3">
           We use this data to authenticate users, connect Instagram
           integrations, match comment keywords, send private replies through the
-          official Meta APIs, enforce plan limits, process billing, prevent
-          duplicate sends, troubleshoot failures, and protect the service.
+          official Meta APIs, prevent duplicate sends, troubleshoot failures,
+          and protect the service.
         </p>
       </section>
 
@@ -49,9 +49,9 @@ export default function PrivacyPage() {
         <h2 className="text-xl font-bold text-white">Subprocessors</h2>
         <p className="mt-3">
           The production service may use hosting, database, Redis queue, email,
-          billing, and observability providers such as Vercel, Railway,
-          PostgreSQL, Redis, Resend, and Stripe. These providers process data
-          only as needed to run the service.
+          and observability providers such as Vercel, Railway, PostgreSQL,
+          Redis, and Resend. These providers process data only as needed to run
+          the service.
         </p>
       </section>
 

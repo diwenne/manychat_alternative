@@ -59,7 +59,7 @@ export const manychatAlternativePage: SeoPageConfig = {
     },
     {
       title: "Does it support agencies?",
-      body: "Yes. The Agency plan supports multiple Instagram accounts, workspace members, account filters, analytics, and shareable reports.",
+      body: "Yes. It supports multiple Instagram accounts, workspace members, account filters, analytics, and shareable reports, with no account limit.",
     },
   ],
 };

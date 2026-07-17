@@ -34,19 +34,10 @@ export default function TermsPage() {
       </section>
 
       <section>
-        <h2 className="text-xl font-bold text-white">Billing</h2>
-        <p className="mt-3">
-          Paid plans are billed through Stripe. Plan access is provisioned from
-          Stripe webhook events. Cancellations, failed payments, and subscription
-          changes may change plan limits or reduce access to paid features.
-        </p>
-      </section>
-
-      <section>
         <h2 className="text-xl font-bold text-white">Availability</h2>
         <p className="mt-3">
-          CampaignCue depends on third-party platforms including Meta, Stripe,
-          email, hosting, database, and queue providers. We work to operate the
+          CampaignCue depends on third-party platforms including Meta, email,
+          hosting, database, and queue providers. We work to operate the
           service reliably, but uninterrupted availability is not guaranteed.
         </p>
       </section>

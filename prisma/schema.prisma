@@ -72,14 +72,8 @@ model Workspace {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  plan                 Plan                @default(FREE)
-  subscriptionStatus   SubscriptionStatus  @default(NONE)
-  stripeCustomerId     String?             @unique
-  stripeSubscriptionId String?             @unique
-  stripePriceId        String?
-  currentPeriodEnd     DateTime?
-  usagePeriodStart     DateTime            @default(now())
-  dmsSentThisPeriod    Int                 @default(0)
+  usagePeriodStart  DateTime @default(now())
+  dmsSentThisPeriod Int      @default(0)
 
   members           WorkspaceMember[]
   invitations       WorkspaceInvitation[]
@@ -89,7 +83,6 @@ model Workspace {
   trackedLinks      TrackedLink[]
   linkClicks        LinkClick[]
   webhookEvents     WebhookEvent[]
-  billingEvents     BillingEvent[]
   operationalEvents OperationalEvent[]
 
   @@index([ownerId])
@@ -269,19 +262,6 @@ model WebhookEvent {
   @@index([status])
 }
 
-model BillingEvent {
-  id          String   @id @default(cuid())
-  workspaceId String?
-  stripeEventId String @unique
-  type        String
-  payload     Json
-  processedAt DateTime @default(now())
-
-  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
-
-  @@index([workspaceId])
-}
-
 model OperationalEvent {
   id          String                @id @default(cuid())
   workspaceId String?
@@ -311,21 +291,6 @@ enum WorkspaceInvitationStatus {
   ACCEPTED
   REVOKED
   EXPIRED
-}
-
-enum Plan {
-  FREE
-  PRO
-  AGENCY
-}
-
-enum SubscriptionStatus {
-  NONE
-  TRIALING
-  ACTIVE
-  PAST_DUE
-  UNPAID
-  CANCELED
 }
 
 enum DmStatus {

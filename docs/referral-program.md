@@ -28,14 +28,14 @@ Automated v2:
 
 1. Generate referral codes per workspace.
 2. Attribute signup and first paid subscription to the referring workspace.
-3. Apply Stripe billing credits only after fraud checks pass.
+3. Apply account credits only after fraud checks pass.
 4. Surface referral status inside settings.
 
 ## Fraud Controls
 
 Billing credits should not be automatic until these controls exist:
 
-- Require referred workspace to use a different Stripe customer, email domain, and Instagram account.
+- Require referred workspace to use a different email domain and Instagram account.
 - Require first successful subscription payment before awarding credit.
 - Delay credit until the refund and chargeback risk window is acceptable.
 - Block self-referrals, duplicate accounts, disposable emails, and repeated payment method reuse.
@@ -50,6 +50,5 @@ Planned implementation pieces:
 
 - `ReferralCode` and `ReferralAttribution` models.
 - Signup attribution from `?ref=`.
-- Stripe webhook credit provisioning.
 - Settings page referral panel.
 - Admin review path for suspicious referrals.

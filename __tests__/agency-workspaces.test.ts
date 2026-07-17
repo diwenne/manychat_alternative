@@ -16,7 +16,6 @@ vi.mock("@/lib/db/client", () => ({
 
 import {
   canConnectInstagramAccount,
-  getInstagramAccountLimit,
   getWorkspaceInstagramAccount,
 } from "../lib/instagram-accounts";
 import {
@@ -29,12 +28,6 @@ beforeEach(() => {
 });
 
 describe("agency workspace helpers", () => {
-  it("applies account limits from the effective plan", () => {
-    expect(getInstagramAccountLimit("FREE", "NONE")).toBe(1);
-    expect(getInstagramAccountLimit("AGENCY", "ACTIVE")).toBe(10);
-    expect(getInstagramAccountLimit("AGENCY", "PAST_DUE")).toBe(1);
-  });
-
   it("allows reconnecting an account already owned by the workspace", async () => {
     mockPrisma.instagramAccount.findUnique.mockResolvedValue({
       workspaceId: "workspace_123",
@@ -43,12 +36,9 @@ describe("agency workspace helpers", () => {
     await expect(
       canConnectInstagramAccount({
         workspaceId: "workspace_123",
-        plan: "FREE",
-        subscriptionStatus: "NONE",
         instagramId: "ig_123",
       })
-    ).resolves.toMatchObject({ allowed: true, reason: null, limit: 1 });
-    expect(mockPrisma.instagramAccount.count).not.toHaveBeenCalled();
+    ).resolves.toMatchObject({ allowed: true, reason: null });
   });
 
   it("blocks accounts already connected to another workspace", async () => {
@@ -59,33 +49,23 @@ describe("agency workspace helpers", () => {
     await expect(
       canConnectInstagramAccount({
         workspaceId: "workspace_123",
-        plan: "AGENCY",
-        subscriptionStatus: "ACTIVE",
         instagramId: "ig_123",
       })
     ).resolves.toMatchObject({
       allowed: false,
       reason: "already_connected",
-      limit: 10,
     });
   });
 
-  it("blocks new account connections when the plan account limit is reached", async () => {
+  it("allows connecting additional accounts with no plan limit", async () => {
     mockPrisma.instagramAccount.findUnique.mockResolvedValue(null);
-    mockPrisma.instagramAccount.count.mockResolvedValue(1);
 
     await expect(
       canConnectInstagramAccount({
         workspaceId: "workspace_123",
-        plan: "PRO",
-        subscriptionStatus: "ACTIVE",
         instagramId: "ig_123",
       })
-    ).resolves.toMatchObject({
-      allowed: false,
-      reason: "plan_limit",
-      limit: 1,
-    });
+    ).resolves.toMatchObject({ allowed: true, reason: null });
   });
 
   it("selects a requested workspace account or falls back to the latest account", async () => {

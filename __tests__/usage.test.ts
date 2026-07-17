@@ -41,6 +41,8 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+const LIMIT = Number.MAX_SAFE_INTEGER;
+
 describe("reserveWorkspaceDMSend", () => {
   it("atomically increments usage when the workspace is under its limit", async () => {
     const periodStart = new Date("2026-05-01T00:00:00.000Z");
@@ -48,8 +50,6 @@ describe("reserveWorkspaceDMSend", () => {
       .mockResolvedValueOnce({ count: 0 })
       .mockResolvedValueOnce({ count: 1 });
     mockTx.workspace.findUnique.mockResolvedValueOnce({
-      plan: "FREE",
-      subscriptionStatus: "NONE",
       usagePeriodStart: periodStart,
       dmsSentThisPeriod: 99,
     });
@@ -59,28 +59,26 @@ describe("reserveWorkspaceDMSend", () => {
     expect(result).toEqual({
       allowed: true,
       reserved: true,
-      remaining: 0,
-      limit: 100,
+      remaining: LIMIT - 100,
+      limit: LIMIT,
       periodStart,
     });
     expect(mockTx.workspace.updateMany).toHaveBeenNthCalledWith(2, {
       where: {
         id: "workspace_123",
         usagePeriodStart: { gte: new Date(2026, 4, 1) },
-        dmsSentThisPeriod: { lt: 100 },
+        dmsSentThisPeriod: { lt: LIMIT },
       },
       data: { dmsSentThisPeriod: { increment: 1 } },
     });
   });
 
-  it("denies without incrementing when the plan limit is already reached", async () => {
+  it("denies without incrementing when the limit is already reached", async () => {
     const periodStart = new Date("2026-05-01T00:00:00.000Z");
     mockTx.workspace.updateMany.mockResolvedValueOnce({ count: 0 });
     mockTx.workspace.findUnique.mockResolvedValueOnce({
-      plan: "FREE",
-      subscriptionStatus: "NONE",
       usagePeriodStart: periodStart,
-      dmsSentThisPeriod: 100,
+      dmsSentThisPeriod: LIMIT,
     });
 
     const result = await reserveWorkspaceDMSend("workspace_123");
@@ -98,8 +96,6 @@ describe("reserveWorkspaceDMSend", () => {
       .mockResolvedValueOnce({ count: 0 });
     mockTx.workspace.findUnique
       .mockResolvedValueOnce({
-        plan: "FREE",
-        subscriptionStatus: "NONE",
         usagePeriodStart: periodStart,
         dmsSentThisPeriod: 99,
       })
@@ -112,7 +108,7 @@ describe("reserveWorkspaceDMSend", () => {
 
     expect(result.allowed).toBe(false);
     expect(result.reserved).toBe(false);
-    expect(result.remaining).toBe(0);
+    expect(result.remaining).toBe(LIMIT - 100);
   });
 });
 

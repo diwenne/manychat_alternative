@@ -36,8 +36,6 @@ const baseAutomation = {
   reportShareSlug: "report_123",
   workspace: {
     name: "Acme Studio",
-    plan: "FREE",
-    subscriptionStatus: "NONE",
   },
   instagramAccount: {
     username: "acme",
@@ -74,12 +72,12 @@ beforeEach(() => {
 });
 
 describe("campaign reports", () => {
-  it("builds a branded free-plan report without private log data", async () => {
+  it("builds an unbranded report without private log data", async () => {
     const report = await getCampaignReportBySlug("report_123");
 
     expect(report).toMatchObject({
       shareSlug: "report_123",
-      branded: true,
+      branded: false,
       workspace: { name: "Acme Studio" },
       campaign: {
         name: "Product Link Drop",
@@ -107,21 +105,6 @@ describe("campaign reports", () => {
     expect("dmMessage" in (report?.campaign ?? {})).toBe(false);
   });
 
-  it("returns unbranded reports for paid effective plans", async () => {
-    mockPrisma.automation.findFirst.mockResolvedValueOnce({
-      ...baseAutomation,
-      workspace: {
-        ...baseAutomation.workspace,
-        plan: "PRO",
-        subscriptionStatus: "ACTIVE",
-      },
-    });
-
-    const report = await getCampaignReportBySlug("report_123");
-
-    expect(report?.branded).toBe(false);
-  });
-
   it("returns null when a report slug is missing or disabled", async () => {
     mockPrisma.automation.findFirst.mockResolvedValueOnce(null);
 
@@ -132,7 +115,6 @@ describe("campaign reports", () => {
     expect(buildReportUrl("abc123", "https://campaigncue.com/")).toBe(
       "https://campaigncue.com/reports/abc123"
     );
-    expect(isReportBranded("FREE", "NONE")).toBe(true);
-    expect(isReportBranded("AGENCY", "ACTIVE")).toBe(false);
+    expect(isReportBranded()).toBe(false);
   });
 });

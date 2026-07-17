@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getCurrentWorkspaceId } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
-import { getEffectivePlan, PLAN_LIMITS } from "@/lib/billing/plans";
 import { calculateCtr, normalizeTopKeywords } from "@/lib/tracking/analytics";
 import { buildTrackedUrl } from "@/lib/tracking/message";
 import { generateTrackedLinkSlug } from "@/lib/tracking/server";
@@ -223,10 +222,10 @@ export async function POST(request: NextRequest) {
       ? parsed.data.instagramAccountId
       : null;
 
-  const [workspace, instagramAccount, automationCount] = await Promise.all([
+  const [workspace, instagramAccount] = await Promise.all([
     prisma.workspace.findUnique({
       where: { id: workspaceId },
-      select: { plan: true, subscriptionStatus: true },
+      select: { id: true },
     }),
     requestedInstagramAccountId
       ? prisma.instagramAccount.findFirst({
@@ -236,7 +235,6 @@ export async function POST(request: NextRequest) {
           where: { workspaceId },
           orderBy: { connectedAt: "desc" },
         }),
-    prisma.automation.count({ where: { workspaceId } }),
   ]);
 
   if (!workspace) {
@@ -250,22 +248,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { success: false, error: "Connect Instagram before creating campaigns" },
       { status: 400 }
-    );
-  }
-
-  const effectivePlan = getEffectivePlan(
-    workspace.plan,
-    workspace.subscriptionStatus
-  );
-  const limit = PLAN_LIMITS[effectivePlan];
-
-  if (automationCount >= limit.maxAutomations) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: `Plan limit reached. Your ${effectivePlan} plan allows up to ${limit.maxAutomations} campaign(s).`,
-      },
-      { status: 403 }
     );
   }
 

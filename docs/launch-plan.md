@@ -40,7 +40,6 @@ Secondary audiences:
 - Deploy worker on Railway.
 - Connect managed Postgres and Redis.
 - Configure Resend.
-- Configure Stripe test products and webhooks.
 - Configure Meta test app and webhook.
 - Complete one real test-account comment-to-DM flow.
 - Add privacy, terms, and data deletion pages.

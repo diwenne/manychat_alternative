@@ -20,8 +20,8 @@ export default function MetaReviewPage() {
           A business owner signs in by email, connects an Instagram professional
           account through Meta OAuth, creates a keyword campaign for a post or
           reel, and receives a webhook when someone comments. CampaignCue queues
-          the event, deduplicates it, checks plan and rate limits, then sends a
-          private reply using the comment ID.
+          the event, deduplicates it, checks rate limits, then sends a private
+          reply using the comment ID.
         </p>
       </section>
 

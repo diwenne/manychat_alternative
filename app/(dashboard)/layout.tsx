@@ -3,7 +3,6 @@ import DashboardShell from "@/components/dashboard-shell";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
 import { ensureWorkspaceForUser } from "@/lib/workspace";
-import { getEffectivePlan } from "@/lib/billing/plans";
 
 export default async function DashboardLayout({
   children,
@@ -29,7 +28,6 @@ export default async function DashboardLayout({
   return (
     <DashboardShell
       workspaceName={workspace.name}
-      plan={getEffectivePlan(workspace.plan, workspace.subscriptionStatus)}
       instagramUsername={accounts[0]?.username ?? null}
       instagramAccountCount={accounts.length}
     >

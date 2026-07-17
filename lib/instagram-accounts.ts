@@ -1,24 +1,10 @@
-import type { Plan, SubscriptionStatus } from "@/app/generated/prisma/client";
-import { getEffectivePlan, PLAN_LIMITS } from "@/lib/billing/plans";
 import { prisma } from "@/lib/db/client";
-
-export function getInstagramAccountLimit(
-  plan: Plan,
-  subscriptionStatus: SubscriptionStatus
-) {
-  return PLAN_LIMITS[getEffectivePlan(plan, subscriptionStatus)]
-    .maxInstagramAccounts;
-}
 
 export async function canConnectInstagramAccount({
   workspaceId,
-  plan,
-  subscriptionStatus,
   instagramId,
 }: {
   workspaceId: string;
-  plan: Plan;
-  subscriptionStatus: SubscriptionStatus;
   instagramId: string;
 }) {
   const existingAccount = await prisma.instagramAccount.findUnique({
@@ -30,27 +16,12 @@ export async function canConnectInstagramAccount({
     return {
       allowed: false,
       reason: "already_connected" as const,
-      limit: getInstagramAccountLimit(plan, subscriptionStatus),
     };
   }
-
-  if (existingAccount?.workspaceId === workspaceId) {
-    return {
-      allowed: true,
-      reason: null,
-      limit: getInstagramAccountLimit(plan, subscriptionStatus),
-    };
-  }
-
-  const limit = getInstagramAccountLimit(plan, subscriptionStatus);
-  const currentCount = await prisma.instagramAccount.count({
-    where: { workspaceId },
-  });
 
   return {
-    allowed: currentCount < limit,
-    reason: currentCount < limit ? null : ("plan_limit" as const),
-    limit,
+    allowed: true,
+    reason: null,
   };
 }
 

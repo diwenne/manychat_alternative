@@ -49,10 +49,6 @@ jobs:
           ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
           RESEND_API_KEY: re_test
           EMAIL_FROM: "InstaReply <login@example.com>"
-          STRIPE_SECRET_KEY: sk_test_123
-          STRIPE_WEBHOOK_SECRET: whsec_123
-          STRIPE_PRICE_PRO: price_pro
-          STRIPE_PRICE_AGENCY: price_agency
           META_GRAPH_API_VERSION: v25.0
           INSTAGRAM_APP_ID: test
           INSTAGRAM_APP_SECRET: test

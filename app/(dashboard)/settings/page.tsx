@@ -6,8 +6,6 @@ import type { AccountOption } from "@/components/account-select";
 interface SettingsData {
   workspace: {
     name: string;
-    plan: string;
-    subscriptionStatus: string;
     dmsSentThisPeriod: number;
   };
   instagramAccount: {
@@ -23,13 +21,6 @@ interface SettingsData {
       webhookSubscribed: boolean;
     }
   >;
-  plan: string;
-  planLimits: {
-    maxAutomations: number | null;
-    maxDMsPerMonth: number;
-    maxInstagramAccounts: number;
-    maxWorkspaceMembers: number;
-  };
 }
 
 interface WorkspaceMembersData {
@@ -126,44 +117,14 @@ export default function SettingsPage() {
     setBusy(null);
   }
 
-  async function startCheckout(plan: "PRO" | "AGENCY") {
-    setBusy(plan);
-    const res = await fetch("/api/billing/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plan }),
-    });
-    const payload = await res.json();
-    if (payload.url) window.location.assign(payload.url);
-    setBusy(null);
-  }
-
-  async function openBillingPortal() {
-    setBusy("portal");
-    const res = await fetch("/api/billing/portal", { method: "POST" });
-    const payload = await res.json();
-    if (payload.url) window.location.assign(payload.url);
-    setBusy(null);
-  }
-
   if (loading) {
     return <div className="glass rounded-2xl p-8 animate-pulse h-64" />;
   }
 
   const accounts = data?.instagramAccounts ?? [];
-  const accountLimit = data?.planLimits.maxInstagramAccounts ?? 1;
   const canManageMembers =
     membersData?.currentUserRole === "OWNER" ||
     membersData?.currentUserRole === "ADMIN";
-  const memberLimit =
-    data?.planLimits.maxWorkspaceMembers ?? membersData?.members.length ?? 1;
-  const pendingInviteCount = membersData?.invitations.length ?? 0;
-  const memberLimitReached =
-    (membersData?.members.length ?? 0) + pendingInviteCount >= memberLimit;
-  const accountLimitReached = accounts.length >= accountLimit;
-  const usage = data
-    ? `${data.workspace.dmsSentThisPeriod} / ${data.planLimits.maxDMsPerMonth}`
-    : "0 / 0";
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 animate-fade-in">
@@ -193,7 +154,8 @@ export default function SettingsPage() {
             <div>
               <p className="text-sm font-medium text-foreground">Accounts</p>
               <p className="text-xs text-muted mt-0.5">
-                {accounts.length} / {accountLimit} connected Instagram profiles
+                {accounts.length} connected Instagram profile
+                {accounts.length === 1 ? "" : "s"}
               </p>
             </div>
             <span className="text-sm text-muted">
@@ -245,11 +207,6 @@ export default function SettingsPage() {
           >
             {accounts.length > 0 ? "Connect another account" : "Connect Instagram"}
           </a>
-          {accountLimitReached && (
-            <p className="self-center text-xs text-muted">
-              Reconnect an existing account or upgrade to Agency for up to 10.
-            </p>
-          )}
         </div>
       </section>
 
@@ -318,14 +275,7 @@ export default function SettingsPage() {
           </div>
         ) : null}
 
-        {canManageMembers && memberLimitReached && (
-          <p className="mt-6 border-t border-border pt-4 text-sm text-muted">
-            This plan allows {memberLimit} workspace member
-            {memberLimit === 1 ? "" : "s"}. Upgrade to Agency to invite a team.
-          </p>
-        )}
-
-        {canManageMembers && !memberLimitReached && (
+        {canManageMembers && (
           <form
             onSubmit={inviteMember}
             className="mt-6 grid gap-3 border-t border-border pt-4 sm:grid-cols-[1fr_140px_auto]"
@@ -363,50 +313,19 @@ export default function SettingsPage() {
       </section>
 
       <section className="glass rounded-2xl p-6">
-        <h2 className="text-base font-semibold mb-6">Billing</h2>
-
-        <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-accent/15">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold text-foreground">
-                {data?.plan ?? "FREE"} Plan
-              </p>
-              <p className="text-xs text-muted mt-0.5">
-                {usage} DMs used this month
-              </p>
-            </div>
-            <button
-              onClick={openBillingPortal}
-              disabled={busy === "portal"}
-              className="px-4 py-2 rounded-xl text-xs font-semibold bg-surface border border-border text-foreground hover:border-border-hover transition-colors disabled:opacity-50"
-            >
-              Billing Portal
-            </button>
+        <h2 className="text-base font-semibold mb-6">Usage</h2>
+        <div className="flex items-center justify-between py-3">
+          <div>
+            <p className="text-sm font-medium text-foreground">
+              DMs sent this month
+            </p>
+            <p className="text-xs text-muted mt-0.5">
+              Self-hosted — no plan limits.
+            </p>
           </div>
-        </div>
-
-        <div className="mt-4 space-y-3">
-          {[
-            { plan: "PRO" as const, price: "$19/mo", features: "10 campaigns · 2,000 DMs/month" },
-            { plan: "AGENCY" as const, price: "$49/mo", features: "Unlimited campaigns · 10 accounts · 10,000 DMs/month" },
-          ].map((tier) => (
-            <div
-              key={tier.plan}
-              className="flex items-center justify-between py-3 border-b border-border last:border-0"
-            >
-              <div>
-                <p className="text-sm font-medium text-foreground">{tier.plan}</p>
-                <p className="text-xs text-muted">{tier.features}</p>
-              </div>
-              <button
-                onClick={() => startCheckout(tier.plan)}
-                disabled={busy === tier.plan}
-                className="px-4 py-2 rounded-xl text-xs font-semibold bg-accent text-white hover:bg-accent-hover transition-colors disabled:opacity-50"
-              >
-                {busy === tier.plan ? "Opening..." : tier.price}
-              </button>
-            </div>
-          ))}
+          <span className="text-sm font-semibold text-foreground">
+            {data?.workspace.dmsSentThisPeriod ?? 0}
+          </span>
         </div>
       </section>
     </div>
