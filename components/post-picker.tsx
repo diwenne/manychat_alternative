@@ -25,6 +25,8 @@ interface InstagramPost {
 interface PostPickerProps {
   selectedPostId: string | null;
   instagramAccountId?: string | null;
+  /** postId -> name of the campaign already using it. Flagged in the grid. */
+  usedPostIds?: Record<string, string>;
   onSelect: (
     postId: string,
     postUrl?: string,
@@ -36,6 +38,7 @@ interface PostPickerProps {
 export default function PostPicker({
   selectedPostId,
   instagramAccountId,
+  usedPostIds,
   onSelect,
 }: PostPickerProps) {
   const [posts, setPosts] = useState<InstagramPost[]>([]);
@@ -136,26 +139,42 @@ export default function PostPicker({
           No posts match &ldquo;{query}&rdquo;
         </p>
       ) : (
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto p-1">
-          {visible.map((post) => {
-            const isSelected = selectedPostId === post.id;
-            const thumb = post.thumbnail_url ?? post.media_url;
-            return (
+        <>
+          {usedPostIds && Object.keys(usedPostIds).length > 0 && (
+            <p className="flex items-center gap-2 px-1 text-xs text-muted">
+              <span className="inline-block h-3 w-3 rounded-sm border-2 border-warning" />
+              Already used by another campaign
+            </p>
+          )}
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto p-1">
+            {visible.map((post) => {
+              const isSelected = selectedPostId === post.id;
+              const usedByName = usedPostIds?.[post.id];
+              const isUsed = Boolean(usedByName) && !isSelected;
+              const thumb = post.thumbnail_url ?? post.media_url;
+              return (
           <button
             key={post.id}
             type="button"
             onClick={() => onSelect(post.id, post.permalink, thumb, post.caption)}
             aria-pressed={isSelected}
+            title={isUsed ? `Already used by "${usedByName}"` : undefined}
             className={`
               relative aspect-square rounded overflow-hidden border-2
-              ${isSelected ? "border-accent" : "border-border hover:border-border-hover"}
+              ${
+                isSelected
+                  ? "border-accent"
+                  : isUsed
+                    ? "border-warning hover:border-warning"
+                    : "border-border hover:border-border-hover"
+              }
             `}
           >
             {thumb ? (
               <img
                 src={thumb}
                 alt={post.caption?.slice(0, 50) ?? "Instagram post"}
-                className="w-full h-full object-cover"
+                className={`w-full h-full object-cover ${isUsed ? "opacity-60" : ""}`}
               />
             ) : (
               <div className="w-full h-full bg-surface flex items-center justify-center">
@@ -167,10 +186,16 @@ export default function PostPicker({
                 Selected
               </span>
             )}
+            {isUsed && (
+              <span className="absolute bottom-0 inset-x-0 bg-warning text-background text-xs py-1 font-medium">
+                In use
+              </span>
+            )}
           </button>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );

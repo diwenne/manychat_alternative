@@ -143,6 +143,11 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
   const [postThumb, setPostThumb] = useState<string | null>(null);
   const [postCaption, setPostCaption] = useState("");
 
+  // Post IDs already tied to another automation on this account, so the picker
+  // can flag them and the user knows not to double-assign. Maps postId ->
+  // the campaign name using it (for the tooltip).
+  const [usedPosts, setUsedPosts] = useState<Record<string, string>>({});
+
   const [matchMode, setMatchMode] = useState<MatchMode>("specific");
   const [keywordText, setKeywordText] = useState("");
 
@@ -256,6 +261,31 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
   }, [mode, campaignId]);
+
+  // Track which posts on the selected account are already assigned to an
+  // automation, so the picker can highlight them. The campaign being edited is
+  // excluded — its own post should read as selected, not "taken".
+  useEffect(() => {
+    if (!selectedAccountId) return;
+    let cancelled = false;
+    fetch("/api/automations", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((payload) => {
+        if (cancelled || !payload.success) return;
+        const map: Record<string, string> = {};
+        for (const a of payload.data as LoadedCampaign[]) {
+          if (!a.postId) continue;
+          if (a.instagramAccountId !== selectedAccountId) continue;
+          if (mode === "edit" && a.id === campaignId) continue;
+          map[a.postId] = a.name;
+        }
+        setUsedPosts(map);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedAccountId, mode, campaignId]);
 
   // Prefill the editable fields from one queued import row. The reel is left
   // unset so the user picks it per row.
@@ -559,6 +589,7 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
               <PostPicker
                 selectedPostId={postId}
                 instagramAccountId={selectedAccountId}
+                usedPostIds={usedPosts}
                 onSelect={handlePostSelect}
               />
             </div>
