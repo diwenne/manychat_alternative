@@ -34,6 +34,23 @@ export function replaceUrlWithTrackedPlaceholder(
   return message.replace(withoutTrailingSlash, "{link}");
 }
 
+/**
+ * Personalize {username} and strip the {link} token — used when the link is
+ * delivered as a separate button rather than inline in the message text.
+ */
+export function renderMessageWithoutLink({
+  message,
+  commenterName,
+}: {
+  message: string;
+  commenterName?: string | null;
+}) {
+  return message
+    .replace(/\{username\}/gi, commenterName ?? "there")
+    .replace(/\s*\{link\}\s*/gi, " ")
+    .trim();
+}
+
 export function buildTrackedUrl(slug: string, baseUrl?: string) {
   const resolvedBaseUrl =
     baseUrl ??

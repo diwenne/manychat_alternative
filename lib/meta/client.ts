@@ -225,6 +225,45 @@ export async function sendDirectMessage(
   return handleResponse(response);
 }
 
+/**
+ * Send a direct message as a button template with a single web_url button —
+ * the reveal message plus a tappable link button (cleaner than an inline URL).
+ */
+export async function sendDirectMessageWithLinkButton(
+  accessToken: string,
+  instagramAccountId: string,
+  userId: string,
+  text: string,
+  buttonTitle: string,
+  url: string
+): Promise<{ recipient_id: string; message_id: string }> {
+  const response = await fetch(
+    `${instagramGraphBase()}/${instagramAccountId}/messages`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        recipient: { id: userId },
+        message: {
+          attachment: {
+            type: "template",
+            payload: {
+              template_type: "button",
+              text: text.slice(0, 640),
+              buttons: [{ type: "web_url", url, title: buttonTitle.slice(0, 20) }],
+            },
+          },
+        },
+      }),
+    }
+  );
+
+  return handleResponse(response);
+}
+
 export async function sendCommentReply(
   accessToken: string,
   commentId: string,

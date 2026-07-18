@@ -12,6 +12,7 @@ import {
   MetaApiError,
   sendCommentReply,
   sendDirectMessage,
+  sendDirectMessageWithLinkButton,
   sendPrivateReply,
   sendPrivateReplyWithButton,
 } from "@/lib/meta/client";
@@ -23,7 +24,11 @@ import {
   reserveWorkspaceDMSend,
 } from "@/lib/billing/usage";
 import { recordWorkerAlert } from "@/lib/ops/worker-health";
-import { renderMessageWithTracking } from "@/lib/tracking/message";
+import {
+  buildTrackedUrl,
+  renderMessageWithTracking,
+  renderMessageWithoutLink,
+} from "@/lib/tracking/message";
 
 const BACKOFF_DELAYS = [5 * 60 * 1000, 15 * 60 * 1000, 45 * 60 * 1000];
 
@@ -452,19 +457,37 @@ async function processPostback(job: Job<ProcessPostbackJob>): Promise<void> {
     return;
   }
 
-  const revealMessage = renderMessageWithTracking({
-    message: automation.dmMessage,
-    commenterName,
-    trackedLinks: automation.trackedLinks,
-  });
+  const primaryLink = automation.trackedLinks[0];
 
   try {
-    await sendDirectMessage(
-      accessToken,
-      automation.instagramAccount.instagramId,
-      userId,
-      revealMessage
-    );
+    if (primaryLink) {
+      // Deliver the link as a tappable button instead of an inline URL.
+      const bodyText =
+        renderMessageWithoutLink({
+          message: automation.dmMessage,
+          commenterName,
+        }) || "Here's your link:";
+      await sendDirectMessageWithLinkButton(
+        accessToken,
+        automation.instagramAccount.instagramId,
+        userId,
+        bodyText,
+        "Open link",
+        buildTrackedUrl(primaryLink.slug)
+      );
+    } else {
+      const revealMessage = renderMessageWithTracking({
+        message: automation.dmMessage,
+        commenterName,
+        trackedLinks: automation.trackedLinks,
+      });
+      await sendDirectMessage(
+        accessToken,
+        automation.instagramAccount.instagramId,
+        userId,
+        revealMessage
+      );
+    }
     await prisma.dmLog.upsert({
       where: {
         automationId_commentId: { automationId: automation.id, commentId: dedupeId },
