@@ -382,7 +382,7 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
           </div>
         )}
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           <label className="text-sm font-semibold text-foreground">
             Campaign name{" "}
             <span className="font-normal text-muted">(optional)</span>

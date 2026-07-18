@@ -126,13 +126,25 @@ function StatusBar() {
 }
 
 function Phone({ children }: { children: React.ReactNode }) {
+  const btn = "absolute w-[3px] rounded-sm bg-gradient-to-r from-zinc-500 to-zinc-700";
   return (
-    <div className="w-[300px] rounded-[3rem] bg-zinc-950 p-[3px] shadow-2xl ring-1 ring-white/10">
-      <div className="rounded-[2.85rem] border-[3px] border-black bg-black p-[3px]">
-        <div className="relative h-[640px] overflow-hidden rounded-[2.6rem] bg-black">
-          {/* Dynamic Island */}
-          <div className="absolute left-1/2 top-2 z-20 h-6 w-24 -translate-x-1/2 rounded-full bg-black" />
-          {children}
+    <div className="relative w-[300px]">
+      {/* Left side buttons: action, volume up, volume down */}
+      <span className={`${btn} -left-[2px] top-[96px] h-7`} />
+      <span className={`${btn} -left-[2px] top-[140px] h-12`} />
+      <span className={`${btn} -left-[2px] top-[200px] h-12`} />
+      {/* Right side buttons: side/power, camera control */}
+      <span className={`${btn} -right-[2px] left-auto top-[150px] h-20 bg-gradient-to-l`} />
+      <span className={`${btn} -right-[2px] left-auto top-[250px] h-9 bg-gradient-to-l`} />
+
+      {/* Titanium frame → black bezel → screen */}
+      <div className="relative rounded-[3rem] bg-gradient-to-br from-zinc-500 via-zinc-700 to-zinc-600 p-[3px] shadow-2xl">
+        <div className="rounded-[2.85rem] bg-black p-[9px]">
+          <div className="relative h-[640px] overflow-hidden rounded-[2.3rem] bg-black">
+            {/* Dynamic Island */}
+            <div className="absolute left-1/2 top-2 z-20 h-6 w-24 -translate-x-1/2 rounded-full bg-black" />
+            {children}
+          </div>
         </div>
       </div>
     </div>
@@ -168,25 +180,27 @@ function PostScreen({
         <span className="text-sm font-semibold">{username}</span>
         <span className="ml-auto tracking-widest">···</span>
       </div>
-      <div className="aspect-square w-full bg-zinc-800">
+      <div className="min-h-0 flex-1 bg-zinc-800">
         {postThumb && (
           <img src={postThumb} alt="" referrerPolicy="no-referrer" className="h-full w-full object-cover" />
         )}
       </div>
-      <div className="flex items-center gap-4 px-3 py-2.5">
+      <div className="flex shrink-0 items-center gap-4 px-3 py-2.5">
         <span className="flex items-center gap-1">{Ico.heart("h-6 w-6")}<span className="text-sm">59</span></span>
         <span className="flex items-center gap-1">{Ico.comment("h-6 w-6")}<span className="text-sm">1</span></span>
         {Ico.share("h-6 w-6")}
         <span className="ml-auto">{Ico.bookmark("h-6 w-6")}</span>
       </div>
-      <div className="px-3 text-xs leading-relaxed">
-        <span className="font-semibold">{username}</span>{" "}
-        <span className="text-zinc-200">
-          {caption || "Applications close rly soon!!"}
-        </span>
+      <div className="shrink-0 px-3 text-xs leading-relaxed">
+        <p className="line-clamp-2">
+          <span className="font-semibold">{username}</span>{" "}
+          <span className="text-zinc-200">
+            {caption || "Applications close rly soon!!"}
+          </span>
+        </p>
         <p className="mt-1 text-zinc-500">View all comments</p>
       </div>
-      <div className="mt-auto flex items-center justify-around border-t border-zinc-800 px-2 py-3 text-white">
+      <div className="flex shrink-0 items-center justify-around border-t border-zinc-800 px-2 py-3 text-white">
         {Ico.home("h-6 w-6")}
         {Ico.search("h-6 w-6")}
         {Ico.plus("h-6 w-6")}

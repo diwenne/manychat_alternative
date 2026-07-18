@@ -36,6 +36,14 @@ body {
   outline-offset: 2px;
 }
 
+/* Form fields already have a border, so keep the focus ring hugging the
+   field instead of bleeding up toward the label above it. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline-offset: 1px;
+}
+
 /* Panel — flat container. Replaces .glass / .glass-strong. */
 .panel {
   background: var(--color-surface);

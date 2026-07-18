@@ -17,8 +17,15 @@ interface Campaign {
   postId: string | null;
   postUrl: string | null;
   pendingNextReel: boolean;
+  matchAnyPost: boolean;
   keywords: string[];
+  matchAnyWord: boolean;
   dmMessage: string;
+  openingDmEnabled: boolean;
+  openingDmMessage: string | null;
+  openingDmButtonLabel: string | null;
+  publicReplyEnabled: boolean;
+  publicReplyMessage: string | null;
   isActive: boolean;
   wholeWordMatch: boolean;
   instagramAccountId: string;
@@ -56,6 +63,7 @@ export default function CampaignsPage() {
   // postId -> current thumbnail URL, fetched live (Instagram URLs expire, so
   // they are never stored on the campaign).
   const [thumbnails, setThumbnails] = useState<Record<string, string>>({});
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
 
   const fetchAutomations = useCallback(async () => {
     try {
@@ -172,6 +180,41 @@ export default function CampaignsPage() {
       setAutomations((prev) => prev.filter((a) => a.id !== id));
     } catch (err) {
       console.error("Failed to delete:", err);
+    }
+  }
+
+  async function duplicateAutomation(auto: Campaign) {
+    setMenuOpenId(null);
+    const specific = !auto.matchAnyPost && !auto.pendingNextReel;
+    try {
+      const res = await fetch("/api/automations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: `${auto.name} copy`,
+          instagramAccountId: auto.instagramAccountId,
+          postId: specific ? auto.postId : null,
+          postUrl: specific ? auto.postUrl : null,
+          matchAnyPost: auto.matchAnyPost,
+          pendingNextReel: auto.pendingNextReel,
+          matchAnyWord: auto.matchAnyWord,
+          keywords: auto.keywords,
+          dmMessage: auto.dmMessage,
+          openingDmEnabled: auto.openingDmEnabled,
+          openingDmMessage: auto.openingDmMessage,
+          openingDmButtonLabel: auto.openingDmButtonLabel,
+          publicReplyEnabled: auto.publicReplyEnabled,
+          publicReplyMessage: auto.publicReplyMessage,
+          trackedDestinationUrl: auto.trackedLinks[0]?.destinationUrl ?? "",
+          wholeWordMatch: auto.wholeWordMatch,
+          isActive: false,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) void fetchAutomations();
+      else console.error("Duplicate failed:", data.error);
+    } catch (err) {
+      console.error("Failed to duplicate:", err);
     }
   }
 
@@ -301,6 +344,14 @@ export default function CampaignsPage() {
 
                 {/* Stats */}
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-xs text-zinc-500">
+                  <span className="font-medium text-foreground">
+                    {auto._count.dmLogs} runs
+                  </span>
+                  <span>·</span>
+                  <span className="font-medium text-foreground">
+                    {auto.analytics.ctr}% CTR
+                  </span>
+                  <span>·</span>
                   <span>{auto.analytics.sent} sent</span>
                   <span>·</span>
                   <span>{auto.analytics.skipped} skipped</span>
@@ -308,10 +359,6 @@ export default function CampaignsPage() {
                   <span>{auto.analytics.failed} failed</span>
                   <span>·</span>
                   <span>{auto.analytics.clicks} clicks</span>
-                  <span>·</span>
-                  <span>{auto.analytics.ctr}% CTR</span>
-                  <span>·</span>
-                  <span>{auto.wholeWordMatch ? "Whole word" : "Partial match"}</span>
                 </div>
 
                 {auto.trackedLinks[0] && (
@@ -424,13 +471,43 @@ export default function CampaignsPage() {
                   Edit
                 </Link>
 
-                {/* Delete */}
-                <button
-                  onClick={() => deleteAutomation(auto.id)}
-                  className="px-2 py-1 rounded text-sm text-muted hover:text-error"
-                >
-                  Delete
-                </button>
+                {/* Kebab menu */}
+                <div className="relative">
+                  <button
+                    onClick={() =>
+                      setMenuOpenId((cur) => (cur === auto.id ? null : auto.id))
+                    }
+                    aria-label="More actions"
+                    className="px-2 py-1 rounded text-lg leading-none text-muted hover:text-foreground"
+                  >
+                    ⋯
+                  </button>
+                  {menuOpenId === auto.id && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setMenuOpenId(null)}
+                      />
+                      <div className="absolute right-0 z-20 mt-1 w-36 overflow-hidden rounded-lg border border-border bg-surface shadow-lg">
+                        <button
+                          onClick={() => void duplicateAutomation(auto)}
+                          className="block w-full px-3 py-2 text-left text-sm text-foreground hover:bg-surface-hover"
+                        >
+                          Duplicate
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMenuOpenId(null);
+                            void deleteAutomation(auto.id);
+                          }}
+                          className="block w-full px-3 py-2 text-left text-sm text-error hover:bg-surface-hover"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
