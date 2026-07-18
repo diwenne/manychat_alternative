@@ -68,6 +68,10 @@ export default function CampaignsPage() {
   // they are never stored on the campaign).
   const [thumbnails, setThumbnails] = useState<Record<string, string>>({});
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "paused">(
+    "all"
+  );
 
   const fetchAutomations = useCallback(async () => {
     try {
@@ -166,25 +170,6 @@ export default function CampaignsPage() {
     }
   }
 
-  async function toggleReport(id: string, reportShareEnabled: boolean) {
-    try {
-      await fetch(`/api/automations?id=${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reportShareEnabled: !reportShareEnabled }),
-      });
-      setAutomations((prev) =>
-        prev.map((a) =>
-          a.id === id
-            ? { ...a, reportShareEnabled: !reportShareEnabled }
-            : a
-        )
-      );
-    } catch (err) {
-      console.error("Failed to toggle report:", err);
-    }
-  }
-
   async function deleteAutomation(id: string) {
     if (!confirm("Delete this campaign? This cannot be undone.")) return;
     try {
@@ -240,13 +225,29 @@ export default function CampaignsPage() {
     );
   }
 
+  const query = search.trim().toLowerCase();
+  const filtered = automations.filter((a) => {
+    if (statusFilter === "active" && !a.isActive) return false;
+    if (statusFilter === "paused" && a.isActive) return false;
+    if (!query) return true;
+    return (
+      a.name.toLowerCase().includes(query) ||
+      a.keywords.some((k) => k.toLowerCase().includes(query)) ||
+      a.dmMessage.toLowerCase().includes(query)
+    );
+  });
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm text-muted">
-            {automations.length} campaign{automations.length !== 1 ? "s" : ""}
+            {filtered.length}
+            {filtered.length !== automations.length
+              ? ` of ${automations.length}`
+              : ""}{" "}
+            campaign{automations.length !== 1 ? "s" : ""}
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -272,6 +273,34 @@ export default function CampaignsPage() {
         </div>
       </div>
 
+      {/* Search + status filter */}
+      {automations.length > 0 && (
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search campaigns by name, keyword, or message…"
+            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-zinc-500 focus:border-accent/40 focus:outline-none"
+          />
+          <div className="inline-flex shrink-0 rounded-lg bg-surface p-1">
+            {(["all", "active", "paused"] as const).map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setStatusFilter(s)}
+                className={`rounded-md px-3 py-1.5 text-sm capitalize transition-colors ${
+                  statusFilter === s
+                    ? "bg-background font-medium text-foreground ring-1 ring-accent/40"
+                    : "text-muted hover:text-foreground"
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Empty state */}
       {automations.length === 0 && (
         <div className="panel rounded p-12 text-center">
@@ -288,13 +317,20 @@ export default function CampaignsPage() {
         </div>
       )}
 
+      {/* No matches for the current filter */}
+      {automations.length > 0 && filtered.length === 0 && (
+        <div className="panel rounded p-8 text-center text-sm text-muted">
+          No campaigns match your search.
+        </div>
+      )}
+
       {/* Campaign cards */}
-      <div className="space-y-4">
-        {automations.map((auto) => (
+      <div className="space-y-3">
+        {filtered.map((auto) => (
           <div
             key={auto.id}
             onClick={() => router.push(`/campaigns/${auto.id}`)}
-            className="panel rounded p-6 hover:border-border-hover transition-all cursor-pointer"
+            className="panel rounded p-4 hover:border-border-hover transition-all cursor-pointer"
           >
             <div className="flex items-start justify-between gap-4">
               {auto.postId && thumbnails[auto.postId] && (
@@ -309,7 +345,7 @@ export default function CampaignsPage() {
                   <img
                     src={thumbnails[auto.postId]}
                     alt="Campaign post"
-                    className="w-16 h-16 rounded object-cover border border-border"
+                    className="w-12 h-12 rounded object-cover border border-border"
                     onError={(e) => {
                       e.currentTarget.style.display = "none";
                     }}
@@ -317,8 +353,8 @@ export default function CampaignsPage() {
                 </a>
               )}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-3">
-                  <h3 className="text-base font-semibold truncate">{auto.name}</h3>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-sm font-semibold truncate">{auto.name}</h3>
                   <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-xs text-muted">
                     @{auto.instagramAccount.username}
                   </span>
@@ -338,14 +374,8 @@ export default function CampaignsPage() {
                   )}
                 </div>
 
-                {auto.goal && (
-                  <p className="mb-3 text-xs font-medium uppercase tracking-wide text-accent">
-                    {auto.goal}
-                  </p>
-                )}
-
                 {/* Keywords */}
-                <div className="flex flex-wrap gap-1.5 mb-3">
+                <div className="flex flex-wrap gap-1.5 mb-2">
                   {auto.keywords.map((kw) => (
                     <span
                       key={kw}
@@ -377,80 +407,6 @@ export default function CampaignsPage() {
                   <span>·</span>
                   <span>{auto.analytics.clicks} clicks</span>
                 </div>
-
-                {auto.trackedLinks[0] && (
-                  <div className="mt-4 rounded border border-border bg-surface/70 p-3">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="min-w-0">
-                        <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-                          Tracked link
-                        </p>
-                        <p className="mt-1 truncate text-xs text-muted">
-                          {auto.trackedLinks[0].trackedUrl}
-                        </p>
-                      </div>
-                      <a
-                        href={auto.trackedLinks[0].trackedUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="inline-flex shrink-0 items-center justify-center rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-border-hover hover:text-foreground"
-                      >
-                        Open
-                      </a>
-                    </div>
-                  </div>
-                )}
-
-                {auto.reportUrl && (
-                  <div
-                    className="mt-4 rounded border border-border bg-surface/70 p-3"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                      <div className="min-w-0">
-                        <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-                          Client report
-                        </p>
-                        <p className="mt-1 truncate text-xs text-muted">
-                          {auto.reportUrl}
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            toggleReport(auto.id, auto.reportShareEnabled)
-                          }
-                          className={`inline-flex items-center justify-center rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-                            auto.reportShareEnabled
-                              ? "border-success/20 text-success hover:bg-success/10"
-                              : "border-border text-muted hover:border-border-hover hover:text-foreground"
-                          }`}
-                        >
-                          {auto.reportShareEnabled ? "Public" : "Disabled"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            void navigator.clipboard?.writeText(auto.reportUrl ?? "")
-                          }
-                          className="inline-flex items-center justify-center rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-border-hover hover:text-foreground"
-                        >
-                          Copy
-                        </button>
-                        <a
-                          href={auto.reportUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center justify-center rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-border-hover hover:text-foreground"
-                        >
-                          View
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 {auto.analytics.topKeywords.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">
