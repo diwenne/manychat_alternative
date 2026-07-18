@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -150,155 +151,184 @@ const faqs = [
   },
 ];
 
-function InstagramPost() {
+/* Landing-page product replicas — faithful, static copies of the real
+   Overview and Dashboard screens, built in the app's own design tokens so
+   what visitors see is what the app actually looks like. */
+
+function AppWindow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="border border-white/10 bg-zinc-950 p-3 shadow-black/40">
-      <div className="flex items-center justify-between border-b border-white/10 pb-3">
-        <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-full bg-surface border border-border" />
-          <div>
-            <p className="text-sm font-semibold text-white">@studio.store</p>
-            <p className="text-xs text-zinc-500">Reel campaign</p>
-          </div>
-        </div>
-        <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-zinc-300">
-          Live
-        </span>
+    <div className="overflow-hidden rounded-lg border border-border bg-background shadow-2xl shadow-black/50">
+      <div className="flex items-center gap-2 border-b border-border bg-surface px-4 py-3">
+        <span className="h-2.5 w-2.5 rounded-full bg-border" />
+        <span className="h-2.5 w-2.5 rounded-full bg-border" />
+        <span className="h-2.5 w-2.5 rounded-full bg-border" />
+        <span className="ml-2 text-xs text-muted">{label}</span>
       </div>
-
-      <div className="mt-3 aspect-[4/5] overflow-hidden bg-surface p-4">
-        <div className="flex h-full flex-col justify-between border border-white/20 bg-black/20 p-4">
-          <p className="text-xs font-semibold text-white/80">New drop</p>
-          <div>
-            <p className="text-2xl font-bold leading-tight text-white">
-              Comment LINK
-            </p>
-            <p className="mt-2 text-sm text-white/80">
-              Get the full guide in your inbox.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-3 space-y-2">
-        <div className="border border-white/10 bg-white/[0.03] p-3">
-          <p className="text-xs font-semibold text-white">@maya.co</p>
-          <p className="mt-1 text-sm text-zinc-300">LINK please</p>
-        </div>
-        <div className="border border-emerald-300/20 bg-emerald-300/10 p-3">
-          <p className="text-xs font-semibold text-emerald-100">Matched keyword</p>
-          <p className="mt-1 text-sm text-zinc-200">Queued private reply</p>
-        </div>
-      </div>
+      <div className="p-5">{children}</div>
     </div>
   );
 }
 
-function BuilderPreview() {
+function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-white/10 bg-zinc-950 shadow-black/40">
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+    <div className="rounded border border-border bg-surface p-4">
+      <p className="text-sm text-muted">{label}</p>
+      <p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
+    </div>
+  );
+}
+
+const overviewStats = [
+  ["Views", "847.2K"],
+  ["Reach", "612.4K"],
+  ["Likes", "38.1K"],
+  ["Comments", "4,204"],
+  ["Saved", "9,712"],
+  ["Shares", "2,340"],
+];
+
+const overviewPosts = [
+  ["Spring drop reel", "214.8K", "9.1K", "Apr 3"],
+  ["Restock haul", "88.4K", "5.2K", "Mar 28"],
+  ["Behind the studio", "51.3K", "3.4K", "Mar 21"],
+];
+
+function OverviewPreview() {
+  return (
+    <AppWindow label="app / overview">
+      <div className="flex items-end justify-between">
         <div>
-          <p className="text-sm font-semibold text-white">Product guide reply</p>
-          <p className="text-xs text-zinc-500">Campaign builder</p>
+          <h3 className="text-base font-semibold text-foreground">Overview</h3>
+          <p className="mt-1 text-xs text-muted">
+            Recent — 24 posts from @studio.store
+          </p>
         </div>
-        <span className="bg-cyan-300 px-3 py-1 text-xs font-bold text-zinc-950">
-          Active
+        <span className="rounded border border-border px-2 py-1 text-xs text-muted">
+          Last 50
         </span>
       </div>
 
-      <div className="grid gap-3 p-4 md:grid-cols-[0.95fr_1.05fr]">
-        <div className="space-y-3">
-          <div className="border border-white/10 bg-white/[0.03] p-4">
-            <p className="text-xs font-semibold text-zinc-500">POST OR REEL</p>
-            <div className="mt-3 flex items-center gap-3">
-              <div className="h-14 w-14 bg-surface" />
-              <div>
-                <p className="text-sm font-semibold text-white">Spring drop reel</p>
-                <p className="text-xs text-zinc-500">12.8k views</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-white/10 bg-white/[0.03] p-4">
-            <p className="text-xs font-semibold text-zinc-500">KEYWORDS</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {["LINK", "GUIDE", "PRICE"].map((item) => (
-                <span
-                  key={item}
-                  className="border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold text-cyan-100"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col border border-white/10 bg-white/[0.03] p-4">
-          <p className="text-xs font-semibold text-zinc-500">PRIVATE REPLY</p>
-          <div className="mt-4 flex-1 border border-white/10 bg-zinc-950 p-4 text-sm leading-6 text-zinc-200">
-            Hey {"{username}"}, here is the product guide you asked for:
-            <span className="text-cyan-200"> shop.link/guide</span>
-          </div>
-          <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-            {[
-              ["1", "job"],
-              ["0", "dupes"],
-              ["sent", "status"],
-            ].map(([value, label]) => (
-              <div key={label} className="border border-white/10 bg-zinc-950 p-2">
-                <p className="text-sm font-bold text-white">{value}</p>
-                <p className="text-[11px] text-zinc-500">{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DashboardVisual() {
-  return (
-    <div className="border border-white/10 bg-zinc-950 p-4 shadow-black/40">
-      <div className="grid gap-3 sm:grid-cols-3">
-        {[
-          ["Active campaigns", "8"],
-          ["DMs this month", "1,284"],
-          ["Delivery status", "99%"],
-        ].map(([label, value]) => (
-          <div key={label} className="border border-white/10 bg-white/[0.03] p-4">
-            <p className="text-xs text-zinc-500">{label}</p>
-            <p className="mt-2 text-2xl font-bold text-white">{value}</p>
-          </div>
+      <div className="mt-4 grid grid-cols-3 gap-3">
+        {overviewStats.map(([label, value]) => (
+          <Stat key={label} label={label} value={value} />
         ))}
       </div>
-      <div className="mt-3 border border-white/10 bg-white/[0.03] p-4">
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold text-white">Recent replies</p>
-          <p className="text-xs text-zinc-500">Live logs</p>
-        </div>
-        <div className="mt-4 space-y-2">
-          {[
-            ["@maya.co", "Product guide reply", "Sent"],
-            ["@founder.ray", "Price request", "Sent"],
-            ["@shop.ava", "Lead magnet", "Queued"],
-          ].map(([user, automation, status]) => (
-            <div
-              key={`${user}-${automation}`}
-              className="grid grid-cols-[1fr_1.1fr_auto] items-center gap-3 border border-white/10 bg-zinc-950 px-3 py-2 text-sm"
-            >
-              <span className="truncate text-white">{user}</span>
-              <span className="truncate text-zinc-400">{automation}</span>
-              <span className="bg-emerald-300/10 px-2 py-1 text-xs font-semibold text-emerald-100">
-                {status}
-              </span>
+
+      <div className="mt-4 rounded border border-border bg-surface p-4">
+        <p className="text-sm font-semibold text-foreground">Posts</p>
+        <table className="mt-3 w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-zinc-500">
+              <th className="pb-2 pr-3 font-medium">Post</th>
+              <th className="pb-2 px-3 text-right font-medium">Views</th>
+              <th className="pb-2 px-3 text-right font-medium">Likes</th>
+              <th className="pb-2 pl-3 text-right font-medium">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {overviewPosts.map(([post, views, likes, date]) => (
+              <tr key={post} className="border-b border-border last:border-0">
+                <td className="py-2 pr-3 text-foreground">{post}</td>
+                <td className="py-2 px-3 text-right text-muted">{views}</td>
+                <td className="py-2 px-3 text-right text-muted">{likes}</td>
+                <td className="py-2 pl-3 text-right text-zinc-500">{date}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </AppWindow>
+  );
+}
+
+function MatchedCommentCard() {
+  return (
+    <div className="w-64 rounded-lg border border-border bg-surface p-4 shadow-2xl shadow-black/50">
+      <p className="text-xs text-muted">New comment</p>
+      <p className="mt-1 text-sm font-semibold text-foreground">@maya.co</p>
+      <p className="mt-1 text-sm text-muted">LINK please</p>
+      <div className="mt-3 border-t border-border pt-3">
+        <p className="text-xs text-muted">
+          Matched <span className="text-accent">GUIDE</span>
+        </p>
+        <p className="mt-1 text-sm font-medium text-success">
+          Queued private reply
+        </p>
+      </div>
+    </div>
+  );
+}
+
+const dashboardStats = [
+  ["Active Campaigns", "8"],
+  ["DMs Sent", "1,284"],
+  ["Skipped", "42"],
+  ["Failed", "3"],
+  ["Clicks", "356"],
+  ["CTR", "27.7%"],
+];
+
+const dashboardChart: [string, number][] = [
+  ["Mon", 42],
+  ["Tue", 68],
+  ["Wed", 51],
+  ["Thu", 94],
+  ["Fri", 120],
+  ["Sat", 86],
+  ["Sun", 73],
+];
+
+const dashboardActivity = [
+  ["@maya.co", "Product guide reply", "Sent", "text-success"],
+  ["@founder.ray", "Price request", "Sent", "text-success"],
+  ["@shop.ava", "Lead magnet", "Queued", "text-warning"],
+];
+
+function DashboardPreview() {
+  const maxDM = Math.max(...dashboardChart.map(([, n]) => n));
+  return (
+    <AppWindow label="app / dashboard">
+      <h3 className="text-base font-semibold text-foreground">Hello, Maya!</h3>
+      <p className="mt-1 text-xs text-muted">2 connected accounts · 340 contacts</p>
+
+      <div className="mt-4 grid grid-cols-3 gap-3">
+        {dashboardStats.map(([label, value]) => (
+          <Stat key={label} label={label} value={value} />
+        ))}
+      </div>
+
+      <div className="mt-4 rounded border border-border bg-surface p-4">
+        <p className="text-sm font-semibold text-foreground">DMs — Last 7 Days</p>
+        <div className="mt-4 flex h-32 items-end gap-2">
+          {dashboardChart.map(([day, n]) => (
+            <div key={day} className="flex flex-1 flex-col items-center gap-2">
+              <span className="text-[10px] text-muted">{n}</span>
+              <div
+                className="w-full rounded-sm bg-accent"
+                style={{ height: `${Math.max((n / maxDM) * 100, 4)}%` }}
+              />
+              <span className="text-[10px] text-zinc-500">{day}</span>
             </div>
           ))}
         </div>
       </div>
-    </div>
+
+      <div className="mt-4 rounded border border-border bg-surface p-4">
+        <p className="text-sm font-semibold text-foreground">Recent Activity</p>
+        <div className="mt-3 space-y-2">
+          {dashboardActivity.map(([user, automation, status, color]) => (
+            <div
+              key={user}
+              className="flex items-center justify-between gap-3 border-b border-border py-2 text-sm last:border-0"
+            >
+              <span className="truncate text-foreground">{user}</span>
+              <span className="truncate text-muted">{automation}</span>
+              <span className={`text-sm ${color}`}>{status}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </AppWindow>
   );
 }
 
@@ -382,23 +412,9 @@ export default function Home() {
         </div>
 
         <div className="relative">
-          <div className="absolute -left-4 top-8 hidden h-20 w-20 border border-cyan-200/20 bg-cyan-300/10 lg:block" />
-          <div className="absolute -right-4 bottom-10 hidden h-24 w-24 border border-rose-200/20 bg-rose-300/10 lg:block" />
-          <div className="relative grid gap-4 sm:grid-cols-[0.74fr_1fr]">
-            <InstagramPost />
-            <div className="space-y-4 sm:pt-16">
-              <BuilderPreview />
-              <div className="grid grid-cols-2 gap-4">
-                <div className="border border-white/10 bg-zinc-950 p-4">
-                  <p className="text-xs text-zinc-500">Monthly DMs</p>
-                  <p className="mt-2 text-lg font-bold text-white">Unlimited</p>
-                </div>
-                <div className="border border-white/10 bg-zinc-950 p-4">
-                  <p className="text-xs text-zinc-500">Worker</p>
-                  <p className="mt-2 text-lg font-bold text-white">Running</p>
-                </div>
-              </div>
-            </div>
+          <OverviewPreview />
+          <div className="absolute -bottom-8 -left-6 hidden lg:block">
+            <MatchedCommentCard />
           </div>
         </div>
       </section>
@@ -453,7 +469,7 @@ export default function Home() {
 
       <section className="border-y border-white/10 bg-white/[0.025] py-20">
         <div className="mx-auto grid w-full max-w-7xl gap-10 px-5 sm:px-6 lg:grid-cols-[1.08fr_0.92fr] lg:px-8 lg:items-center">
-          <DashboardVisual />
+          <DashboardPreview />
 
           <div>
             <p className="text-sm font-bold uppercase text-emerald-200">Operator dashboard</p>

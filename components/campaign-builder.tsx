@@ -17,6 +17,11 @@ import { useRouter } from "next/navigation";
 import AccountSelect, { type AccountOption } from "@/components/account-select";
 import PostPicker from "@/components/post-picker";
 import CampaignPreview, { type PreviewTab } from "@/components/campaign-preview";
+import {
+  IMPORT_QUEUE_KEY,
+  IMPORT_ACCOUNT_KEY,
+  type ImportRow,
+} from "@/lib/import-queue";
 
 type TriggerScope = "specific" | "any" | "next";
 type MatchMode = "specific" | "any";
@@ -151,6 +156,11 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
 
   const [previewTab, setPreviewTab] = useState<PreviewTab>("dm");
 
+  // CSV import queue. When present, each save advances to the next row instead
+  // of returning to the campaigns list.
+  const [importQueue, setImportQueue] = useState<ImportRow[] | null>(null);
+  const [importTotal, setImportTotal] = useState(0);
+
   const keywords = useMemo(
     () =>
       keywordText
@@ -226,6 +236,47 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
       .finally(() => setLoading(false));
   }, [mode, campaignId]);
 
+  // Prefill the editable fields from one queued import row. The reel is left
+  // unset so the user picks it per row.
+  function prefillFromRow(row: ImportRow) {
+    setName(row.name ?? "");
+    setTriggerScope("specific");
+    setPostId(null);
+    setPostUrl(null);
+    setPostThumb(null);
+    setPostCaption("");
+    setMatchMode("specific");
+    setKeywordText((row.keywords ?? []).join(", "));
+    setDmMessage(row.dmMessage ?? "");
+    setPublicReplyEnabled(Boolean(row.publicReply));
+    setPublicReplyMessage(row.publicReply ?? "");
+    const link = row.trackedUrl ?? "";
+    setTrackedDestinationUrl(link);
+    setLinkOpen(Boolean(link));
+    setError(null);
+  }
+
+  // Pick up a staged CSV import (new mode only) and prefill the first row.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (mode !== "new") return;
+    try {
+      const raw = window.localStorage.getItem(IMPORT_QUEUE_KEY);
+      const acct = window.localStorage.getItem(IMPORT_ACCOUNT_KEY);
+      if (!raw) return;
+      const queue = JSON.parse(raw) as ImportRow[];
+      if (!Array.isArray(queue) || queue.length === 0) return;
+      setImportQueue(queue);
+      setImportTotal(queue.length);
+      if (acct) setSelectedAccountId(acct);
+      prefillFromRow(queue[0]);
+    } catch {
+      // ignore a malformed queue
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
   const username =
     accounts.find((a) => a.id === selectedAccountId)?.username ?? "yourbrand";
 
@@ -292,8 +343,36 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
               body: JSON.stringify(payload),
             });
       const data = await res.json();
-      if (data.success) router.push("/campaigns");
-      else setError(data.error ?? "Failed to save campaign");
+      if (data.success) {
+        // Importing: advance to the next queued row instead of leaving.
+        if (importQueue && importQueue.length > 1) {
+          const remaining = importQueue.slice(1);
+          try {
+            window.localStorage.setItem(
+              IMPORT_QUEUE_KEY,
+              JSON.stringify(remaining)
+            );
+          } catch {
+            // ignore
+          }
+          setImportQueue(remaining);
+          prefillFromRow(remaining[0]);
+          setSaving(false);
+          if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+          return;
+        }
+        if (importQueue) {
+          try {
+            window.localStorage.removeItem(IMPORT_QUEUE_KEY);
+            window.localStorage.removeItem(IMPORT_ACCOUNT_KEY);
+          } catch {
+            // ignore
+          }
+        }
+        router.push("/campaigns");
+      } else {
+        setError(data.error ?? "Failed to save campaign");
+      }
     } catch {
       setError("Failed to save campaign");
     } finally {
@@ -321,6 +400,18 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
 
   return (
     <div className="space-y-6">
+      {importQueue && (
+        <div className="rounded border border-accent/30 bg-accent/5 px-4 py-3 text-sm">
+          <span className="font-medium text-foreground">
+            Importing {importTotal - importQueue.length + 1} of {importTotal}.
+          </span>{" "}
+          <span className="text-muted">
+            Fields are prefilled from your CSV. Pick the reel, edit anything, and
+            save to load the next one.
+          </span>
+        </div>
+      )}
+
       {/* Top bar */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">

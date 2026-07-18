@@ -72,6 +72,9 @@ const Ico = {
   camera: (c = "") => (
     <svg viewBox="0 0 24 24" className={c} {...S}><path d="M3 8a2 2 0 012-2h1.2a2 2 0 001.7-1l.5-.8a2 2 0 011.7-1h3.8a2 2 0 011.7 1l.5.8a2 2 0 001.7 1H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><circle cx="12" cy="13" r="3.2" /></svg>
   ),
+  link: (c = "") => (
+    <svg viewBox="0 0 24 24" className={c} {...S}><path d="M10.5 13.5a4 4 0 005.7 0l2.3-2.3a4 4 0 00-5.7-5.7L11.5 6.8" /><path d="M13.5 10.5a4 4 0 00-5.7 0l-2.3 2.3a4 4 0 005.7 5.7l1.3-1.3" /></svg>
+  ),
 };
 
 /* ----------------------------- helpers ----------------------------- */
@@ -328,14 +331,45 @@ function DmScreen({
             </div>
           </>
         )}
-        <div className="flex items-end gap-2">
-          <Avatar url={avatarUrl} size={24} />
-          <div className="max-w-[78%] rounded-2xl rounded-bl-md bg-zinc-800 px-3 py-2">
-            <p className="whitespace-pre-wrap text-sm">
-              {revealMessage ? renderMessage(revealMessage, hasLink) : "Write a message"}
-            </p>
-          </div>
-        </div>
+        {(() => {
+          const resolved = revealMessage.replace(/\{username\}/g, SAMPLE_USER);
+          const hasToken = resolved.includes("{link}");
+          const showCard = hasLink && hasToken;
+          const bodyText = showCard
+            ? resolved.replace(/\s*\{link\}\s*/g, " ").trim()
+            : resolved;
+          return (
+            <div className="flex items-end gap-2">
+              <Avatar url={avatarUrl} size={24} />
+              <div className="max-w-[80%] overflow-hidden rounded-2xl rounded-bl-md bg-zinc-800">
+                {(!showCard || bodyText) && (
+                  <p className="whitespace-pre-wrap px-3 py-2 text-sm">
+                    {!revealMessage
+                      ? "Write a message"
+                      : showCard
+                        ? bodyText
+                        : renderMessage(revealMessage, hasLink)}
+                  </p>
+                )}
+                {showCard && (
+                  <a className="flex items-center gap-2 border-t border-white/10 bg-zinc-700/60 px-3 py-2">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-zinc-600 text-white">
+                      {Ico.link("h-4 w-4")}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-medium text-white">
+                        yourlink.com/offer
+                      </span>
+                      <span className="block text-[10px] uppercase tracking-wide text-zinc-400">
+                        Tap to open
+                      </span>
+                    </span>
+                  </a>
+                )}
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       <div className="flex items-center gap-2 px-3 py-3">
