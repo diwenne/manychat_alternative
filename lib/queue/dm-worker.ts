@@ -437,14 +437,9 @@ async function processPostback(job: Job<ProcessPostbackJob>): Promise<void> {
     return;
   }
 
-  // One reveal per user per automation.
+  // Duplicate sends are enabled: every button tap re-sends the reveal
+  // instead of only firing once per person.
   const dedupeId = `reveal:${userId}`;
-  const existing = await prisma.dmLog.findUnique({
-    where: {
-      automationId_commentId: { automationId: automation.id, commentId: dedupeId },
-    },
-  });
-  if (existing?.status === "SENT") return;
 
   // Personalize {username} from the opening DM log for this user, if present.
   const openingLog = await prisma.dmLog.findFirst({
