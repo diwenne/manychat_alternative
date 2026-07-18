@@ -12,6 +12,8 @@ import StatCard from "@/components/stat-card";
 import StatusBadge from "@/components/status-badge";
 
 interface DashboardStats {
+  userName: string | null;
+  contactsCount: number;
   totalAutomations: number;
   activeAutomations: number;
   dmsSentToday: number;
@@ -81,17 +83,36 @@ export default function DashboardPage() {
 
   const maxDM = Math.max(...(stats?.dailyDMs.map((d) => d.count) ?? [1]), 1);
 
+  const connectedCount = stats?.instagramAccounts.length ?? 0;
+
   return (
     <div className="space-y-8">
-      {stats && stats.instagramAccounts.length > 1 && (
-        <div className="flex justify-end">
+      {/* Greeting header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Hello, {stats?.userName ?? "there"}!
+          </h1>
+          <p className="mt-1 text-sm text-muted">
+            {connectedCount} connected{" "}
+            {connectedCount === 1 ? "account" : "accounts"}
+            {" · "}
+            {stats?.contactsCount ?? 0}{" "}
+            {stats?.contactsCount === 1 ? "contact" : "contacts"}
+            {" · "}
+            <a href="/logs" className="text-accent hover:underline">
+              See activity
+            </a>
+          </p>
+        </div>
+        {stats && stats.instagramAccounts.length > 1 && (
           <AccountSelect
             accounts={stats.instagramAccounts}
             value={selectedAccountId}
             onChange={handleAccountChange}
           />
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">

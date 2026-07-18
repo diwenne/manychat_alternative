@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentWorkspaceId } from "@/lib/auth";
+import { getCurrentUserId, getCurrentWorkspaceId } from "@/lib/auth";
 import { prisma } from "@/lib/db/client";
 import {
   calculateCtr,
@@ -15,6 +15,8 @@ export async function GET(request: NextRequest) {
       { status: 401 }
     );
   }
+
+  const userId = await getCurrentUserId();
 
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -46,6 +48,8 @@ export async function GET(request: NextRequest) {
     totalClicks,
     topKeywordRows,
     recentLogs,
+    user,
+    contactRows,
   ] = await Promise.all([
     prisma.workspace.findUnique({
       where: { id: workspaceId },
@@ -131,6 +135,18 @@ export async function GET(request: NextRequest) {
         instagramAccount: { select: { username: true } },
       },
     }),
+    userId
+      ? prisma.user.findUnique({
+          where: { id: userId },
+          select: { name: true, email: true },
+        })
+      : Promise.resolve(null),
+    // Distinct people who have interacted, counted as "contacts".
+    prisma.dmLog.findMany({
+      where: { workspaceId, ...accountFilter },
+      distinct: ["commenterId"],
+      select: { commenterId: true },
+    }),
   ]);
 
   const dailyDMs: { date: string; count: number }[] = [];
@@ -168,9 +184,16 @@ export async function GET(request: NextRequest) {
     }))
   );
 
+  const firstName =
+    user?.name?.trim().split(/\s+/)[0] ||
+    user?.email?.split("@")[0] ||
+    null;
+
   return NextResponse.json({
     success: true,
     data: {
+      userName: firstName,
+      contactsCount: contactRows.length,
       workspace,
       instagramAccount,
       instagramAccounts,
