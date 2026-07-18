@@ -27,6 +27,7 @@ interface CampaignPreviewProps {
   openingDmButtonLabel: string;
   revealMessage: string;
   hasLink: boolean;
+  linkButtonLabel: string;
 }
 
 const SAMPLE_USER = "username";
@@ -290,6 +291,7 @@ function DmScreen({
   openingDmButtonLabel,
   revealMessage,
   hasLink,
+  linkButtonLabel,
 }: {
   username: string;
   avatarUrl: string | null;
@@ -298,6 +300,7 @@ function DmScreen({
   openingDmButtonLabel: string;
   revealMessage: string;
   hasLink: boolean;
+  linkButtonLabel: string;
 }) {
   return (
     <div className="flex h-full flex-col text-white">
@@ -352,16 +355,16 @@ function DmScreen({
                   </p>
                 )}
                 {showCard && (
-                  <a className="flex items-center gap-2 border-t border-white/10 bg-zinc-700/60 px-3 py-2">
+                  <a className="flex items-center gap-2 border-t border-white/10 bg-zinc-700/60 px-3 py-2.5">
                     <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-zinc-600 text-white">
                       {Ico.link("h-4 w-4")}
                     </span>
                     <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium text-white">
-                        yourlink.com/offer
+                      <span className="block truncate text-sm font-medium text-sky-300">
+                        {linkButtonLabel || "Open link"}
                       </span>
-                      <span className="block text-[10px] uppercase tracking-wide text-zinc-400">
-                        Tap to open
+                      <span className="block truncate text-[10px] text-zinc-400">
+                        yourlink.com/offer
                       </span>
                     </span>
                   </a>
@@ -421,6 +424,7 @@ export default function CampaignPreview(props: CampaignPreviewProps) {
             openingDmButtonLabel={props.openingDmButtonLabel}
             revealMessage={props.revealMessage}
             hasLink={props.hasLink}
+            linkButtonLabel={props.linkButtonLabel}
           />
         )}
       </Phone>

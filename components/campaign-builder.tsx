@@ -39,6 +39,7 @@ interface LoadedCampaign {
   openingDmEnabled: boolean;
   openingDmMessage: string | null;
   openingDmButtonLabel: string | null;
+  linkButtonLabel: string | null;
   publicReplyEnabled: boolean;
   publicReplyMessage: string | null;
   isActive: boolean;
@@ -153,6 +154,7 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
   const [dmMessage, setDmMessage] = useState("");
   const [linkOpen, setLinkOpen] = useState(false);
   const [trackedDestinationUrl, setTrackedDestinationUrl] = useState("");
+  const [linkButtonLabel, setLinkButtonLabel] = useState("Open link");
 
   const [previewTab, setPreviewTab] = useState<PreviewTab>("dm");
 
@@ -227,6 +229,7 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
         setOpeningDmMessage(c.openingDmMessage ?? "");
         setOpeningDmButtonLabel(c.openingDmButtonLabel ?? "");
         setDmMessage(c.dmMessage);
+        setLinkButtonLabel(c.linkButtonLabel ?? "Open link");
         setIsActive(c.isActive);
         const link = c.trackedLinks?.[0]?.destinationUrl ?? "";
         setTrackedDestinationUrl(link);
@@ -325,6 +328,7 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
       publicReplyEnabled,
       publicReplyMessage: publicReplyEnabled ? publicReplyMessage : null,
       trackedDestinationUrl: trackedDestinationUrl.trim() || "",
+      linkButtonLabel: linkButtonLabel.trim() || "Open link",
       isActive: activeValue,
     };
 
@@ -620,13 +624,22 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
               maxLength={1000}
             />
             {linkOpen ? (
-              <input
-                value={trackedDestinationUrl}
-                onChange={(e) => setTrackedDestinationUrl(e.target.value)}
-                onBlur={ensureLinkToken}
-                placeholder="https://yourlink.com/offer"
-                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-zinc-500 focus:border-accent/40 focus:outline-none"
-              />
+              <div className="space-y-2">
+                <input
+                  value={trackedDestinationUrl}
+                  onChange={(e) => setTrackedDestinationUrl(e.target.value)}
+                  onBlur={ensureLinkToken}
+                  placeholder="https://yourlink.com/offer"
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-zinc-500 focus:border-accent/40 focus:outline-none"
+                />
+                <input
+                  value={linkButtonLabel}
+                  onChange={(e) => setLinkButtonLabel(e.target.value)}
+                  placeholder="Button label (e.g. Open link)"
+                  maxLength={20}
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-zinc-500 focus:border-accent/40 focus:outline-none"
+                />
+              </div>
             ) : (
               <button
                 type="button"
@@ -662,6 +675,7 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
             openingDmButtonLabel={openingDmButtonLabel}
             revealMessage={dmMessage}
             hasLink={Boolean(trackedDestinationUrl.trim())}
+            linkButtonLabel={linkButtonLabel || "Open link"}
           />
         </div>
       </div>

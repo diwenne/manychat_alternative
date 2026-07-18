@@ -472,7 +472,7 @@ async function processPostback(job: Job<ProcessPostbackJob>): Promise<void> {
         automation.instagramAccount.instagramId,
         userId,
         bodyText,
-        "Open link",
+        automation.linkButtonLabel || "Open link",
         buildTrackedUrl(primaryLink.slug)
       );
     } else {

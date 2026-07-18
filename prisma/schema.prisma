@@ -161,6 +161,7 @@ model Automation {
   openingDmEnabled     Boolean @default(false)
   openingDmMessage     String?
   openingDmButtonLabel String?
+  linkButtonLabel      String?
   publicReplyEnabled Boolean @default(false)
   publicReplyMessage String?
   isActive       Boolean @default(true)

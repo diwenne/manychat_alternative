@@ -30,6 +30,7 @@ const createAutomationSchema = z
     openingDmEnabled: z.boolean().optional().default(false),
     openingDmMessage: z.string().max(1000).optional().nullable(),
     openingDmButtonLabel: z.string().max(64).optional().nullable(),
+    linkButtonLabel: z.string().max(20).optional().nullable(),
     publicReplyEnabled: z.boolean().optional().default(false),
     publicReplyMessage: z.string().max(1000).optional().nullable(),
     trackedDestinationUrl: z.string().url().optional().nullable(),
@@ -68,6 +69,7 @@ const updateAutomationSchema = z.object({
   openingDmEnabled: z.boolean().optional(),
   openingDmMessage: z.string().max(1000).optional().nullable(),
   openingDmButtonLabel: z.string().max(64).optional().nullable(),
+  linkButtonLabel: z.string().max(20).optional().nullable(),
   publicReplyEnabled: z.boolean().optional(),
   publicReplyMessage: z.string().max(1000).optional().nullable(),
   isActive: z.boolean().optional(),
@@ -327,6 +329,7 @@ export async function POST(request: NextRequest) {
       openingDmButtonLabel: openingDmEnabled
         ? parsed.data.openingDmButtonLabel || null
         : null,
+      linkButtonLabel: parsed.data.linkButtonLabel || null,
       publicReplyEnabled: parsed.data.publicReplyEnabled,
       publicReplyMessage: parsed.data.publicReplyEnabled
         ? parsed.data.publicReplyMessage || null
