@@ -1,10 +1,8 @@
 <div align="center">
 
-<img src="public/logo.svg" width="88" alt="OpenReply logo" />
-
 # OpenReply
 
-Open source Instagram comment-to-DM automation. A free, self-hosted alternative to ManyChat.
+Open-sourced ManyChat for Instagram comment-to-DM automation.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/diwenne/manychat_alternative?style=flat&color=black)](https://github.com/diwenne/manychat_alternative/stargazers)
