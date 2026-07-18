@@ -40,6 +40,7 @@ export default function PostPicker({
   const [posts, setPosts] = useState<InstagramPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -47,6 +48,9 @@ export default function PostPicker({
     if (instagramAccountId) {
       params.set("instagramAccountId", instagramAccountId);
     }
+    // Load the full library so older posts/reels are selectable, not just the
+    // most recent page.
+    params.set("all", "true");
 
     const timer = window.setTimeout(() => {
       setLoading(true);
@@ -104,12 +108,33 @@ export default function PostPicker({
     );
   }
 
+  const visible = query.trim()
+    ? posts.filter((p) =>
+        (p.caption ?? "").toLowerCase().includes(query.trim().toLowerCase())
+      )
+    : posts;
+
   return (
-    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto p-1">
-      {posts.map((post) => {
-        const isSelected = selectedPostId === post.id;
-        const thumb = post.thumbnail_url ?? post.media_url;
-        return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search your posts by caption…"
+          className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-zinc-500 focus:border-accent/40 focus:outline-none"
+        />
+        <span className="shrink-0 text-xs text-muted">{posts.length}</span>
+      </div>
+      {visible.length === 0 ? (
+        <p className="py-6 text-center text-sm text-muted">
+          No posts match &ldquo;{query}&rdquo;
+        </p>
+      ) : (
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto p-1">
+          {visible.map((post) => {
+            const isSelected = selectedPostId === post.id;
+            const thumb = post.thumbnail_url ?? post.media_url;
+            return (
           <button
             key={post.id}
             type="button"
@@ -137,8 +162,10 @@ export default function PostPicker({
               </span>
             )}
           </button>
-        );
-      })}
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

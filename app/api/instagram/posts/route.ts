@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentWorkspaceId } from "@/lib/auth";
 import { getWorkspaceInstagramAccount } from "@/lib/instagram-accounts";
-import { getUserMedia } from "@/lib/meta/client";
+import { getAllUserMedia, getUserMedia } from "@/lib/meta/client";
 import { decryptToken } from "@/lib/meta/oauth";
 
 export async function GET(request: NextRequest) {
@@ -30,12 +30,21 @@ export async function GET(request: NextRequest) {
 
   try {
     const accessToken = decryptToken(account.accessToken);
-    const limitParam = request.nextUrl.searchParams.get("limit");
-    const parsedLimit = limitParam ? Number.parseInt(limitParam, 10) : 25;
-    const limit = Number.isFinite(parsedLimit)
-      ? Math.min(Math.max(parsedLimit, 1), 50)
-      : 25;
-    const posts = await getUserMedia(accessToken, limit);
+
+    // `all=true` paginates the full library (for the campaign post picker);
+    // otherwise return a single recent page.
+    const loadAll = request.nextUrl.searchParams.get("all") === "true";
+    let posts;
+    if (loadAll) {
+      posts = await getAllUserMedia(accessToken, 300);
+    } else {
+      const limitParam = request.nextUrl.searchParams.get("limit");
+      const parsedLimit = limitParam ? Number.parseInt(limitParam, 10) : 25;
+      const limit = Number.isFinite(parsedLimit)
+        ? Math.min(Math.max(parsedLimit, 1), 50)
+        : 25;
+      posts = await getUserMedia(accessToken, limit);
+    }
 
     return NextResponse.json({ success: true, data: posts });
   } catch (err) {
