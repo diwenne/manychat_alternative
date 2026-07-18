@@ -42,6 +42,7 @@ interface LoadedCampaign {
   linkButtonLabel: string | null;
   publicReplyEnabled: boolean;
   publicReplyMessage: string | null;
+  publicReplyMessages: string[];
   isActive: boolean;
   instagramAccountId: string;
   trackedLinks?: { destinationUrl: string }[];
@@ -145,7 +146,7 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
   const [keywordText, setKeywordText] = useState("");
 
   const [publicReplyEnabled, setPublicReplyEnabled] = useState(false);
-  const [publicReplyMessage, setPublicReplyMessage] = useState("");
+  const [publicReplyMessages, setPublicReplyMessages] = useState<string[]>([""]);
 
   const [openingDmEnabled, setOpeningDmEnabled] = useState(false);
   const [openingDmMessage, setOpeningDmMessage] = useState("");
@@ -224,7 +225,13 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
         setMatchMode(c.matchAnyWord ? "any" : "specific");
         setKeywordText(c.keywords.join(", "));
         setPublicReplyEnabled(c.publicReplyEnabled);
-        setPublicReplyMessage(c.publicReplyMessage ?? "");
+        setPublicReplyMessages(
+          c.publicReplyMessages?.length
+            ? c.publicReplyMessages
+            : c.publicReplyMessage
+              ? [c.publicReplyMessage]
+              : [""]
+        );
         setOpeningDmEnabled(c.openingDmEnabled);
         setOpeningDmMessage(c.openingDmMessage ?? "");
         setOpeningDmButtonLabel(c.openingDmButtonLabel ?? "");
@@ -252,7 +259,7 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
     setKeywordText((row.keywords ?? []).join(", "));
     setDmMessage(row.dmMessage ?? "");
     setPublicReplyEnabled(Boolean(row.publicReply));
-    setPublicReplyMessage(row.publicReply ?? "");
+    setPublicReplyMessages(row.publicReply ? [row.publicReply] : [""]);
     const link = row.trackedUrl ?? "";
     setTrackedDestinationUrl(link);
     setLinkOpen(Boolean(link));
@@ -326,7 +333,9 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
       openingDmMessage: openingDmEnabled ? openingDmMessage : null,
       openingDmButtonLabel: openingDmEnabled ? openingDmButtonLabel : null,
       publicReplyEnabled,
-      publicReplyMessage: publicReplyEnabled ? publicReplyMessage : null,
+      publicReplyMessages: publicReplyEnabled
+        ? publicReplyMessages.map((m) => m.trim()).filter(Boolean)
+        : [],
       trackedDestinationUrl: trackedDestinationUrl.trim() || "",
       linkButtonLabel: linkButtonLabel.trim() || "Open link",
       isActive: activeValue,
@@ -570,14 +579,52 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
             />
           </div>
           {publicReplyEnabled && (
-            <textarea
-              value={publicReplyMessage}
-              onChange={(e) => setPublicReplyMessage(e.target.value)}
-              placeholder="Sent you a DM! 📩"
-              rows={2}
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-zinc-500 focus:border-accent/40 focus:outline-none resize-none"
-              maxLength={1000}
-            />
+            <div className="space-y-2">
+              {publicReplyMessages.map((msg, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    value={msg}
+                    onChange={(e) =>
+                      setPublicReplyMessages((prev) =>
+                        prev.map((m, idx) => (idx === i ? e.target.value : m))
+                      )
+                    }
+                    placeholder="Sent you a DM! 📩"
+                    maxLength={1000}
+                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-zinc-500 focus:border-accent/40 focus:outline-none"
+                  />
+                  {publicReplyMessages.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPublicReplyMessages((prev) =>
+                          prev.filter((_, idx) => idx !== i)
+                        )
+                      }
+                      className="shrink-0 px-2 text-muted hover:text-error"
+                      aria-label="Remove reply"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
+              {publicReplyMessages.length < 10 && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPublicReplyMessages((prev) => [...prev, ""])
+                  }
+                  className="text-xs font-medium text-accent hover:underline"
+                >
+                  + Add another reply
+                </button>
+              )}
+              <p className="text-xs text-muted">
+                One is picked at random each time, so replies don&apos;t look
+                identical.
+              </p>
+            </div>
           )}
         </Section>
 
@@ -669,7 +716,7 @@ export default function CampaignBuilder({ mode, campaignId }: CampaignBuilderPro
             caption={postCaption}
             sampleComment={keywords[0] ?? ""}
             publicReplyEnabled={publicReplyEnabled}
-            publicReplyMessage={publicReplyMessage}
+            publicReplyMessage={publicReplyMessages.find((m) => m.trim()) ?? ""}
             openingDmEnabled={openingDmEnabled}
             openingDmMessage={openingDmMessage}
             openingDmButtonLabel={openingDmButtonLabel}

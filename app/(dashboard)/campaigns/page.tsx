@@ -26,6 +26,7 @@ interface Campaign {
   openingDmButtonLabel: string | null;
   publicReplyEnabled: boolean;
   publicReplyMessage: string | null;
+  publicReplyMessages: string[];
   isActive: boolean;
   wholeWordMatch: boolean;
   instagramAccountId: string;
@@ -204,7 +205,7 @@ export default function CampaignsPage() {
           openingDmMessage: auto.openingDmMessage,
           openingDmButtonLabel: auto.openingDmButtonLabel,
           publicReplyEnabled: auto.publicReplyEnabled,
-          publicReplyMessage: auto.publicReplyMessage,
+          publicReplyMessages: auto.publicReplyMessages,
           trackedDestinationUrl: auto.trackedLinks[0]?.destinationUrl ?? "",
           wholeWordMatch: auto.wholeWordMatch,
           isActive: false,

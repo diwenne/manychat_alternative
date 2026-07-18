@@ -33,6 +33,11 @@ const createAutomationSchema = z
     linkButtonLabel: z.string().max(20).optional().nullable(),
     publicReplyEnabled: z.boolean().optional().default(false),
     publicReplyMessage: z.string().max(1000).optional().nullable(),
+    publicReplyMessages: z
+      .array(z.string().max(1000))
+      .max(10)
+      .optional()
+      .default([]),
     trackedDestinationUrl: z.string().url().optional().nullable(),
     isActive: z.boolean().optional().default(true),
     wholeWordMatch: z.boolean().optional().default(true),
@@ -72,6 +77,7 @@ const updateAutomationSchema = z.object({
   linkButtonLabel: z.string().max(20).optional().nullable(),
   publicReplyEnabled: z.boolean().optional(),
   publicReplyMessage: z.string().max(1000).optional().nullable(),
+  publicReplyMessages: z.array(z.string().max(1000)).max(10).optional(),
   isActive: z.boolean().optional(),
   wholeWordMatch: z.boolean().optional(),
   reportShareEnabled: z.boolean().optional(),
@@ -309,6 +315,15 @@ export async function POST(request: NextRequest) {
     parsed.data;
   // A post is only stored for the "specific post" trigger.
   const isSpecificPost = !pendingNextReel && !matchAnyPost;
+  const publicReplyList = (
+    parsed.data.publicReplyMessages.length > 0
+      ? parsed.data.publicReplyMessages
+      : parsed.data.publicReplyMessage
+        ? [parsed.data.publicReplyMessage]
+        : []
+  )
+    .map((m) => m.trim())
+    .filter(Boolean);
 
   const automation = await prisma.automation.create({
     data: {
@@ -331,8 +346,11 @@ export async function POST(request: NextRequest) {
         : null,
       linkButtonLabel: parsed.data.linkButtonLabel || null,
       publicReplyEnabled: parsed.data.publicReplyEnabled,
+      publicReplyMessages: parsed.data.publicReplyEnabled
+        ? publicReplyList
+        : [],
       publicReplyMessage: parsed.data.publicReplyEnabled
-        ? parsed.data.publicReplyMessage || null
+        ? publicReplyList[0] ?? parsed.data.publicReplyMessage ?? null
         : null,
       isActive: parsed.data.isActive,
       wholeWordMatch: parsed.data.wholeWordMatch,
@@ -427,6 +445,18 @@ export async function PATCH(request: NextRequest) {
   if (automationData.matchAnyPost === true || automationData.pendingNextReel === true) {
     automationData.postId = null;
     automationData.postUrl = null;
+  }
+  // Keep the public-reply variations list and the legacy single field in sync.
+  if (automationData.publicReplyMessages !== undefined) {
+    const list = automationData.publicReplyMessages
+      .map((m) => m.trim())
+      .filter(Boolean);
+    automationData.publicReplyMessages = list;
+    automationData.publicReplyMessage = list[0] ?? null;
+  }
+  if (automationData.publicReplyEnabled === false) {
+    automationData.publicReplyMessages = [];
+    automationData.publicReplyMessage = null;
   }
 
   const updated = await prisma.automation.update({

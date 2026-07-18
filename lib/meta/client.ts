@@ -198,6 +198,46 @@ export async function sendPrivateReplyWithButton(
 }
 
 /**
+ * Send a private reply to a comment as a button template with a web_url button
+ * — the reveal message plus a tappable link button (for campaigns with no
+ * opening DM, where the reveal is delivered straight to the comment).
+ */
+export async function sendPrivateReplyWithLinkButton(
+  accessToken: string,
+  instagramAccountId: string,
+  commentId: string,
+  text: string,
+  buttonTitle: string,
+  url: string
+): Promise<{ recipient_id: string; message_id: string }> {
+  const response = await fetch(
+    `${instagramGraphBase()}/${instagramAccountId}/messages`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        recipient: { comment_id: commentId },
+        message: {
+          attachment: {
+            type: "template",
+            payload: {
+              template_type: "button",
+              text: text.slice(0, 640),
+              buttons: [{ type: "web_url", url, title: buttonTitle.slice(0, 20) }],
+            },
+          },
+        },
+      }),
+    }
+  );
+
+  return handleResponse(response);
+}
+
+/**
  * Send a plain-text direct message to a user by their Instagram-scoped ID.
  * Used to deliver the reveal message after a button postback.
  */

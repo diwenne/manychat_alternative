@@ -15,6 +15,7 @@ import {
   sendDirectMessageWithLinkButton,
   sendPrivateReply,
   sendPrivateReplyWithButton,
+  sendPrivateReplyWithLinkButton,
 } from "@/lib/meta/client";
 import { decryptToken } from "@/lib/meta/oauth";
 import { matchKeywords } from "@/lib/utils/keyword-matcher";
@@ -312,6 +313,21 @@ async function processComment(job: Job<ProcessCommentJob>): Promise<void> {
           automation.openingDmButtonLabel as string,
           `reveal:${automation.id}`
         );
+      } else if (automation.trackedLinks[0]) {
+        // Deliver the link as a tappable button rather than an inline URL.
+        const bodyText =
+          renderMessageWithoutLink({
+            message: automation.dmMessage,
+            commenterName,
+          }) || "Here's your link:";
+        await sendPrivateReplyWithLinkButton(
+          accessToken,
+          automation.instagramAccount.instagramId,
+          commentId,
+          bodyText,
+          automation.linkButtonLabel || "Open link",
+          buildTrackedUrl(automation.trackedLinks[0].slug)
+        );
       } else {
         const dmMessage = renderMessageWithTracking({
           message: automation.dmMessage,
@@ -342,10 +358,19 @@ async function processComment(job: Job<ProcessCommentJob>): Promise<void> {
 
       // Optional public reply under the comment. Best-effort: a failure here
       // must not fail the DM job, since the private reply already succeeded.
-      if (automation.publicReplyEnabled && automation.publicReplyMessage) {
+      // Rotate between variations so replies don't all look identical.
+      const replyPool =
+        automation.publicReplyMessages.length > 0
+          ? automation.publicReplyMessages
+          : automation.publicReplyMessage
+            ? [automation.publicReplyMessage]
+            : [];
+      if (automation.publicReplyEnabled && replyPool.length > 0) {
         try {
+          const chosen =
+            replyPool[Math.floor(Math.random() * replyPool.length)];
           const publicReply = renderMessageWithTracking({
-            message: automation.publicReplyMessage,
+            message: chosen,
             commenterName,
             trackedLinks: automation.trackedLinks,
           });

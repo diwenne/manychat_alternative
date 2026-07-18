@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const {
   mockPrisma,
   mockSendPrivateReply,
+  mockSendPrivateReplyWithLinkButton,
   mockDecryptToken,
   mockMatchKeywords,
   mockReserveDMSlot,
@@ -27,6 +28,7 @@ const {
     },
   },
   mockSendPrivateReply: vi.fn(),
+  mockSendPrivateReplyWithLinkButton: vi.fn(),
   mockDecryptToken: vi.fn(),
   mockMatchKeywords: vi.fn(),
   mockReserveDMSlot: vi.fn(),
@@ -41,6 +43,11 @@ vi.mock("@/lib/db/client", () => ({
 
 vi.mock("@/lib/meta/client", () => ({
   sendPrivateReply: mockSendPrivateReply,
+  sendPrivateReplyWithLinkButton: mockSendPrivateReplyWithLinkButton,
+  sendPrivateReplyWithButton: vi.fn(),
+  sendDirectMessage: vi.fn(),
+  sendDirectMessageWithLinkButton: vi.fn(),
+  sendCommentReply: vi.fn(),
   MetaApiError: class MetaApiError extends Error {
     code: number;
     constructor(
@@ -111,6 +118,15 @@ const mockAutomation = {
   dmMessage: "Hey {username}! Here is the link: https://example.com",
   isActive: true,
   wholeWordMatch: true,
+  matchAnyPost: false,
+  matchAnyWord: false,
+  openingDmEnabled: false,
+  openingDmMessage: null,
+  openingDmButtonLabel: null,
+  linkButtonLabel: null,
+  publicReplyEnabled: false,
+  publicReplyMessage: null,
+  publicReplyMessages: [],
   instagramAccount: {
     id: "ig_account_row_1",
     instagramId: "ig_456",
@@ -185,6 +201,10 @@ beforeEach(() => {
   mockSendPrivateReply.mockResolvedValue({
     recipient_id: "commenter_999",
     message_id: "msg_001",
+  });
+  mockSendPrivateReplyWithLinkButton.mockResolvedValue({
+    recipient_id: "commenter_999",
+    message_id: "msg_002",
   });
 });
 
@@ -422,11 +442,12 @@ describe("DM Worker — Full Pipeline", () => {
     );
   });
 
-  it("should render tracked links into private replies", async () => {
+  it("should deliver tracked links as a web_url button", async () => {
     mockPrisma.automation.findMany.mockResolvedValue([
       {
         ...mockAutomation,
         dmMessage: "Hey {username}! Here is the offer: {link}",
+        linkButtonLabel: "Get offer",
         trackedLinks: [
           {
             slug: "abc123",
@@ -439,11 +460,13 @@ describe("DM Worker — Full Pipeline", () => {
     const processor = getProcessor();
     await processor(createMockJob());
 
-    expect(mockSendPrivateReply).toHaveBeenCalledWith(
+    expect(mockSendPrivateReplyWithLinkButton).toHaveBeenCalledWith(
       "decrypted_token",
       "ig_456",
       "comment_555",
-      "Hey commenter_user! Here is the offer: http://localhost:3000/r/abc123"
+      "Hey commenter_user! Here is the offer:",
+      "Get offer",
+      "http://localhost:3000/r/abc123"
     );
   });
 });
