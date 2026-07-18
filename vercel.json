@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/cron/attach-next-reel",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 6 * * *"
     }
   ]
 }
