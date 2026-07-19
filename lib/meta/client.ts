@@ -337,6 +337,70 @@ export async function getMediaComments(
   return data.data;
 }
 
+// --- Direct message inbox (Conversations API) ---------------------------
+
+export interface InstagramParticipant {
+  id: string;
+  username?: string;
+}
+
+export interface InstagramMessage {
+  id: string;
+  created_time?: string;
+  message?: string;
+  from?: InstagramParticipant;
+  to?: { data: InstagramParticipant[] };
+}
+
+export interface InstagramConversation {
+  id: string;
+  updated_time?: string;
+  participants?: { data: InstagramParticipant[] };
+  messages?: { data: InstagramMessage[] };
+}
+
+/**
+ * List the account's DM conversations, newest first, each with its participants
+ * and a one-message preview. `igUserId` is the account's professional user_id
+ * (the same id used to send messages and as webhook entry.id).
+ */
+export async function getConversations(
+  accessToken: string,
+  igUserId: string
+): Promise<InstagramConversation[]> {
+  const url = new URL(`${instagramGraphBase()}/${igUserId}/conversations`);
+  url.searchParams.set("platform", "instagram");
+  url.searchParams.set(
+    "fields",
+    "participants,updated_time,messages.limit(1){message,from,created_time}"
+  );
+  url.searchParams.set("limit", "50");
+  url.searchParams.set("access_token", accessToken);
+
+  const response = await fetch(url.toString());
+  const data = await handleResponse<{ data: InstagramConversation[] }>(response);
+  return data.data ?? [];
+}
+
+/**
+ * The messages in a conversation, with content. Meta only returns full details
+ * for the 20 most recent messages, newest first.
+ */
+export async function getConversationMessages(
+  accessToken: string,
+  conversationId: string
+): Promise<InstagramMessage[]> {
+  const url = new URL(`${instagramGraphBase()}/${conversationId}`);
+  url.searchParams.set("fields", "messages{id,created_time,from,to,message}");
+  url.searchParams.set("access_token", accessToken);
+
+  const response = await fetch(url.toString());
+  const data = await handleResponse<{ messages?: { data: InstagramMessage[] } }>(
+    response
+  );
+  return data.messages?.data ?? [];
+}
+
 export async function getUserInfo(accessToken: string): Promise<InstagramUser> {
   const url = new URL(`${instagramGraphBase()}/me`);
   url.searchParams.set(
