@@ -12,10 +12,17 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import AccountSelect, { type AccountOption } from "@/components/account-select";
+import { readCache, writeCache } from "@/lib/client-cache";
 import type { ConversationListItem } from "@/app/api/instagram/conversations/route";
 import type { ThreadMessage } from "@/app/api/instagram/conversations/[id]/route";
 
 const POLL_MS = 12_000;
+// Cached list/threads are shown instantly on revisit, then revalidated in the
+// background. The Instagram Conversations API is slow (often several seconds),
+// so this is what makes the inbox feel fast after the first load.
+const CACHE_MAX_AGE_MS = 60_000;
+const convCacheKey = (accountId: string) => `inbox:convs:${accountId}`;
+const msgCacheKey = (conversationId: string) => `inbox:msgs:${conversationId}`;
 
 function formatTime(iso: string | null): string {
   if (!iso) return "";
@@ -30,7 +37,12 @@ function formatTime(iso: string | null): string {
 
 export default function InboxPage() {
   const [accounts, setAccounts] = useState<AccountOption[]>([]);
-  const [selectedAccountId, setSelectedAccountId] = useState("");
+  // Seed from the last-used account so a revisit can paint the cached
+  // conversation list immediately, before the account list even loads.
+  const [selectedAccountId, setSelectedAccountId] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return window.sessionStorage.getItem("inbox:selectedAccount") ?? "";
+  });
 
   const [conversations, setConversations] = useState<ConversationListItem[]>([]);
   const [convLoading, setConvLoading] = useState(true);
@@ -48,20 +60,33 @@ export default function InboxPage() {
 
   const active = conversations.find((c) => c.id === activeId) ?? null;
 
-  // Accounts for the selector; default to the first connected account.
+  // Accounts for the selector; default to the first connected account. Uses the
+  // lightweight accounts endpoint (one query) rather than the heavy dashboard
+  // stats aggregation, so the inbox isn't gated on analytics before it can load.
   useEffect(() => {
-    fetch("/api/dashboard/stats")
+    fetch("/api/instagram/accounts")
       .then((r) => r.json())
       .then((payload) => {
         if (!payload.success) return;
         const next: AccountOption[] = payload.data.instagramAccounts ?? [];
         setAccounts(next);
-        setSelectedAccountId(
-          (prev) => prev || payload.data.selectedInstagramAccountId || next[0]?.id || ""
-        );
+        setSelectedAccountId((prev) => {
+          // Keep the seeded account only if it's still connected; otherwise
+          // fall back to the default so a removed account can't wedge the inbox.
+          const stillValid = prev && next.some((a) => a.id === prev);
+          return stillValid
+            ? prev
+            : payload.data.selectedInstagramAccountId || next[0]?.id || "";
+        });
       })
       .catch(() => setAccounts([]));
   }, []);
+
+  // Remember the chosen account for the next visit.
+  useEffect(() => {
+    if (typeof window === "undefined" || !selectedAccountId) return;
+    window.sessionStorage.setItem("inbox:selectedAccount", selectedAccountId);
+  }, [selectedAccountId]);
 
   const loadConversations = useCallback(
     async (silent: boolean) => {
@@ -75,8 +100,9 @@ export default function InboxPage() {
         const data = await res.json();
         if (data.success) {
           setConversations(data.data.conversations);
+          writeCache(convCacheKey(selectedAccountId), data.data.conversations);
           setConvError(null);
-        } else {
+        } else if (!silent) {
           setConvError(data.error ?? "Failed to load conversations");
         }
       } catch {
@@ -88,12 +114,24 @@ export default function InboxPage() {
     [selectedAccountId]
   );
 
-  // Load + poll conversations for the selected account.
+  // Load + poll conversations for the selected account. A cached list is shown
+  // immediately (so revisits are instant) while a fresh copy loads silently.
   useEffect(() => {
     if (!selectedAccountId) return;
     setActiveId(null);
     setMessages([]);
-    void loadConversations(false);
+    const cached = readCache<ConversationListItem[]>(
+      convCacheKey(selectedAccountId),
+      CACHE_MAX_AGE_MS
+    );
+    if (cached.data) {
+      setConversations(cached.data);
+      setConvLoading(false);
+    } else {
+      setConversations([]);
+      setConvLoading(true);
+    }
+    void loadConversations(Boolean(cached.data));
     const timer = window.setInterval(() => void loadConversations(true), POLL_MS);
     return () => window.clearInterval(timer);
   }, [selectedAccountId, loadConversations]);
@@ -108,7 +146,10 @@ export default function InboxPage() {
           { cache: "no-store" }
         );
         const data = await res.json();
-        if (data.success) setMessages(data.data.messages);
+        if (data.success) {
+          setMessages(data.data.messages);
+          writeCache(msgCacheKey(conversationId), data.data.messages);
+        }
       } catch {
         // keep whatever is shown
       } finally {
@@ -118,10 +159,22 @@ export default function InboxPage() {
     [selectedAccountId]
   );
 
-  // Load + poll the open thread.
+  // Load + poll the open thread. Cached messages render instantly while a fresh
+  // copy loads silently; opening a thread never shows a blank pane on revisit.
   useEffect(() => {
     if (!activeId) return;
-    void loadMessages(activeId, false);
+    const cached = readCache<ThreadMessage[]>(
+      msgCacheKey(activeId),
+      CACHE_MAX_AGE_MS
+    );
+    if (cached.data) {
+      setMessages(cached.data);
+      setThreadLoading(false);
+    } else {
+      setMessages([]);
+      setThreadLoading(true);
+    }
+    void loadMessages(activeId, Boolean(cached.data));
     const timer = window.setInterval(
       () => void loadMessages(activeId, true),
       POLL_MS
@@ -138,6 +191,11 @@ export default function InboxPage() {
   function openConversation(id: string) {
     setActiveId(id);
     setSendError(null);
+    // Paint any cached thread synchronously so the pane never flashes empty
+    // or shows the previously open conversation while the fetch runs.
+    const cached = readCache<ThreadMessage[]>(msgCacheKey(id), CACHE_MAX_AGE_MS);
+    setMessages(cached.data ?? []);
+    setThreadLoading(!cached.data);
   }
 
   async function handleSend() {
@@ -145,6 +203,18 @@ export default function InboxPage() {
     if (!text || !active?.contact.id || sending) return;
     setSending(true);
     setSendError(null);
+
+    // Optimistically show the reply immediately, then confirm with the server.
+    const optimistic: ThreadMessage = {
+      id: `optimistic-${Date.now()}`,
+      text,
+      fromMe: true,
+      fromUsername: null,
+      createdTime: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, optimistic]);
+    setDraft("");
+
     try {
       const res = await fetch("/api/instagram/conversations", {
         method: "POST",
@@ -157,13 +227,17 @@ export default function InboxPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setDraft("");
         await loadMessages(active.id, true);
         void loadConversations(true);
       } else {
+        // Roll the optimistic message back and restore the draft so it's not lost.
+        setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
+        setDraft(text);
         setSendError(data.error ?? "Failed to send message");
       }
     } catch {
+      setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
+      setDraft(text);
       setSendError("Failed to send message");
     } finally {
       setSending(false);

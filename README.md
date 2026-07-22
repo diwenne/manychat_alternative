@@ -5,7 +5,7 @@
 Open-sourced ManyChat for Instagram comment-to-DM automation.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/diwenne/manychat_alternative?style=flat&color=black)](https://github.com/diwenne/manychat_alternative/stargazers)
+[![Stars](https://img.shields.io/github/stars/diwenne/openreply?style=flat&color=black)](https://github.com/diwenne/openreply/stargazers)
 [![Built with Next.js](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org)
 
 </div>
@@ -32,6 +32,7 @@ OpenReply is built around Meta's official Instagram private replies. It does not
 - Multiple Instagram accounts. Connect several professional accounts under one workspace, each with its own limits.
 - Workspaces and roles. Owner, admin, and member roles with invite links, useful if you run this for clients.
 - Campaign templates. Start from a preset instead of a blank form.
+- Inbox. Read your Instagram DM conversations and reply from the dashboard, inside Meta's 24-hour messaging window. Cached so it loads instantly on repeat visits.
 - DM logs. Every send, skip, and failure is logged with a reason.
 - Self-comment filtering. Your own comments never trigger a reply, since Meta rejects DMing yourself anyway.
 
@@ -53,13 +54,13 @@ The honest version: the code deploys in minutes, but the Meta app setup is the p
 
 ### Deploy the web app
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/diwenne/manychat_alternative)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/diwenne/openreply)
 
 ### Run it locally
 
 ```bash
-git clone https://github.com/diwenne/manychat_alternative.git
-cd manychat_alternative
+git clone https://github.com/diwenne/openreply.git
+cd openreply
 npm install
 cp .env.example .env      # then fill in the values, see docs/self-hosting.md
 docker-compose up -d      # starts Postgres and Redis
@@ -97,8 +98,8 @@ Built and maintained by Diwen Huang.
 
 - GitHub: [@diwenne](https://github.com/diwenne)
 - Website: [diwenhuang.ca](https://diwenhuang.ca)
-- X: [@yourhandle](https://x.com/) <!-- replace with your handle -->
-- Instagram: [@yourhandle](https://instagram.com/) <!-- replace with your handle -->
+- X: [@diwenne](https://x.com/diwenne)
+- Instagram: [@devdiwen](https://instagram.com/devdiwen)
 
 OpenReply is a fork of [instagram-comment-to-dm](https://github.com/im-anishraj/instagram-comment-to-dm) by [Anish Raj](https://github.com/im-anishraj), also MIT licensed. The billing layer and plan caps were removed, and the setup was documented from scratch.
 
