@@ -72,6 +72,7 @@ export async function reconcileComments(): Promise<void> {
       matchAnyWord: true,
       keywords: true,
       wholeWordMatch: true,
+      publicReplyEnabled: true,
       workspaceId: true,
       instagramAccount: {
         select: {
@@ -111,6 +112,7 @@ async function sweepCampaign(
     matchAnyWord: boolean;
     keywords: string[];
     wholeWordMatch: boolean;
+    publicReplyEnabled: boolean;
     instagramAccount: {
       id: string;
       instagramId: string;
@@ -198,14 +200,19 @@ async function sweepCampaign(
     });
     if (needsAction.length === 0) continue;
 
-    // Second guard against a race with the webhook or a previous sweep: skip
-    // comments this campaign has already sent to or publicly replied to, even if
-    // Instagram hasn't yet surfaced the reply in the replies edge.
+    // Second guard against races: skip comments this campaign has already fully
+    // handled. "Fully handled" depends on the campaign: if it posts a public
+    // reply, the completion signal is publicReplySentAt (a DM alone is not
+    // enough — the reply still has to land); otherwise a SENT DM is enough. This
+    // is what lets a comment whose DM sent but whose public reply failed come
+    // back and retry the reply.
     const handled = await prisma.dmLog.findMany({
       where: {
         automationId: automation.id,
         commentId: { in: needsAction.map((c) => c.id) },
-        OR: [{ status: "SENT" }, { publicReplySentAt: { not: null } }],
+        ...(automation.publicReplyEnabled
+          ? { publicReplySentAt: { not: null } }
+          : { status: "SENT" }),
       },
       select: { commentId: true },
     });
@@ -218,19 +225,20 @@ async function sweepCampaign(
       .slice(0, MAX_NEW_PER_SWEEP);
 
     for (const c of fresh) {
-      await queue.add(
-        "process-comment",
-        {
-          instagramAccountId: account.instagramId,
-          commentId: c.id,
-          commentText: c.text ?? "",
-          commenterId: c.from!.id,
-          commenterName: c.from?.username,
-          mediaId,
-          source: "POLLING",
-        },
-        { jobId: `comment_${account.instagramId}_${c.id}` }
-      );
+      // No deterministic jobId here: a retained completed/failed job from an
+      // earlier sweep would otherwise be treated as a duplicate and silently
+      // drop this add, so the comment would never be retried. Dedup is handled
+      // above (owner-reply + DmLog guards) and the worker is idempotent
+      // (publicReplySentAt / SENT), so re-processing a comment is safe.
+      await queue.add("process-comment", {
+        instagramAccountId: account.instagramId,
+        commentId: c.id,
+        commentText: c.text ?? "",
+        commenterId: c.from!.id,
+        commenterName: c.from?.username,
+        mediaId,
+        source: "POLLING",
+      });
       stat.enqueued += 1;
     }
   }

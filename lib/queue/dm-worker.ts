@@ -100,11 +100,15 @@ async function processComment(job: Job<ProcessCommentJob>): Promise<void> {
       },
     });
 
-    if (
-      existingLog?.status === "SENT" ||
-      existingLog?.status === "SKIPPED_PLAN_LIMIT" ||
-      existingLog?.status === "SKIPPED_RATE_LIMIT"
-    ) {
+    const alreadyDmd = existingLog?.status === "SENT";
+    const alreadyPublicReplied = Boolean(existingLog?.publicReplySentAt);
+    const needsDm = !alreadyDmd;
+
+    // Skip only when there is genuinely nothing left to do. A comment whose DM
+    // already sent but whose public reply never posted (e.g. it hit a rate
+    // limit) must still come back so the public reply can be retried.
+    if (existingLog?.status === "SKIPPED_PLAN_LIMIT") continue;
+    if (alreadyDmd && (alreadyPublicReplied || !automation.publicReplyEnabled)) {
       continue;
     }
 
@@ -167,33 +171,37 @@ async function processComment(job: Job<ProcessCommentJob>): Promise<void> {
       continue;
     }
 
-    await prisma.dmLog.upsert({
-      where: {
-        automationId_commentId: {
+    // Ensure a log row exists before the public reply leg (which updates it).
+    // Only (re)set PENDING when the DM will actually be attempted, so a prior
+    // SENT is never clobbered while we come back just to retry the public reply.
+    if (!existingLog) {
+      await prisma.dmLog.create({
+        data: {
+          workspaceId: automation.workspaceId,
           automationId: automation.id,
+          instagramAccountId: automation.instagramAccountId,
+          commenterId,
+          commenterName,
+          commentText,
           commentId,
+          matchedKeyword: matchResult.matchedKeyword,
+          status: "PENDING",
+          attempts: job.attemptsMade + 1,
         },
-      },
-      create: {
-        workspaceId: automation.workspaceId,
-        automationId: automation.id,
-        instagramAccountId: automation.instagramAccountId,
-        commenterId,
-        commenterName,
-        commentText,
-        commentId,
-        matchedKeyword: matchResult.matchedKeyword,
-        status: "PENDING",
-        attempts: job.attemptsMade + 1,
-        errorMessage: null,
-      },
-      update: {
-        status: "PENDING",
-        attempts: job.attemptsMade + 1,
-        matchedKeyword: matchResult.matchedKeyword,
-        errorMessage: null,
-      },
-    });
+      });
+    } else if (needsDm) {
+      await prisma.dmLog.update({
+        where: {
+          automationId_commentId: { automationId: automation.id, commentId },
+        },
+        data: {
+          status: "PENDING",
+          attempts: job.attemptsMade + 1,
+          matchedKeyword: matchResult.matchedKeyword,
+          errorMessage: null,
+        },
+      });
+    }
 
     // Public reply leg — decoupled from the DM and posted first so a DM failure
     // (e.g. a non-follower whose messaging is restricted) never suppresses it.
@@ -238,6 +246,10 @@ async function processComment(job: Job<ProcessCommentJob>): Promise<void> {
           .catch(() => {});
       }
     }
+
+    // DM already sent on an earlier pass; the public reply retry above was all
+    // this run needed. Don't re-send the DM.
+    if (!needsDm) continue;
 
     const usage = await reserveWorkspaceDMSend(automation.workspaceId);
     if (!usage.allowed) {
