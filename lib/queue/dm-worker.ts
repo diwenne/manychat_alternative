@@ -77,21 +77,6 @@ async function processComment(job: Job<ProcessCommentJob>): Promise<void> {
     orderBy: { createdAt: "asc" },
   });
 
-  // Record this comment in the shared dedup store, whether or not it matches a
-  // campaign, so the polling reconciler never re-sweeps it. Both the webhook and
-  // the reconciler funnel through here, so this is the single write point.
-  await prisma.processedComment
-    .upsert({
-      where: { commentId },
-      create: {
-        commentId,
-        instagramAccountId,
-        source: job.data.source ?? "WEBHOOK",
-      },
-      update: {},
-    })
-    .catch(() => {});
-
   for (const automation of automations) {
     // "Any word" campaigns fire on every comment; otherwise require a keyword hit.
     const matchResult = automation.matchAnyWord

@@ -64,11 +64,16 @@ export interface InstagramUser {
 export interface InstagramComment {
   id: string;
   text: string;
-  from: {
+  from?: {
     id: string;
-    username: string;
+    username?: string;
   };
   timestamp: string;
+  // Present when the comments query asks for replies{from}. Used to tell whether
+  // the account owner has already replied to this comment.
+  replies?: {
+    data?: { id: string; from?: { id: string; username?: string } }[];
+  };
 }
 
 export interface InstagramMedia {
@@ -338,25 +343,27 @@ export async function getMediaComments(
 }
 
 /**
- * All comments on a media, following pagination cursors to the end. The polling
- * reconciler relies on this: the single-page `getMediaComments` cuts off exactly
- * the collapsed / non-follower comments that also never fire a webhook, which is
- * the whole reason comments go unanswered. `max` is a safety ceiling so a viral
- * post can't spin forever.
+ * Recent comments on a media, newest first, each with its replies so the caller
+ * can tell whether the account owner has already responded. Pagination stops as
+ * soon as it reaches comments older than `sinceMs` (or the `max` ceiling), so a
+ * viral post's entire back-catalogue is never pulled — only what is recent
+ * enough to still act on. This is what the polling reconciler reads.
  *
- * Note: comments hidden by Instagram's own Hidden Words / spam filter may not be
+ * Note: comments hidden by Instagram's Hidden Words / spam filter may not be
  * returned by the Graph API at all. Disable that filter on the account to widen
  * results.
  */
-export async function getAllMediaComments(
+export async function getRecentMediaComments(
   accessToken: string,
   mediaId: string,
-  max = 2000
+  sinceMs: number,
+  max = 800
 ): Promise<InstagramComment[]> {
   const results: InstagramComment[] = [];
 
   const first = new URL(`${instagramGraphBase()}/${mediaId}/comments`);
-  first.searchParams.set("fields", "id,text,from,timestamp");
+  first.searchParams.set("fields", "id,text,timestamp,from,replies{from}");
+  first.searchParams.set("order", "reverse_chronological");
   first.searchParams.set("limit", "50");
   first.searchParams.set("access_token", accessToken);
 
@@ -368,11 +375,19 @@ export async function getAllMediaComments(
       data: InstagramComment[];
       paging?: { next?: string };
     }>(response);
-    results.push(...(page.data ?? []));
+    const data = page.data ?? [];
+    results.push(...data);
+
+    // Newest-first, so once the last item on a page predates the window there
+    // is nothing older worth fetching.
+    const oldest = data[data.length - 1];
+    if (oldest?.timestamp && Date.parse(oldest.timestamp) < sinceMs) break;
     nextUrl = page.paging?.next ?? null;
   }
 
-  return results.slice(0, max);
+  return results
+    .filter((c) => !c.timestamp || Date.parse(c.timestamp) >= sinceMs)
+    .slice(0, max);
 }
 
 // --- Direct message inbox (Conversations API) ---------------------------

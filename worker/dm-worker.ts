@@ -9,7 +9,7 @@ const HEARTBEAT_INTERVAL_MS = 30_000;
 // Polling safety net for comments that webhooks miss. Runs in the worker because
 // it must fire every few minutes and Vercel's free crons only run once a day.
 const POLL_INTERVAL_MS = Number(
-  process.env.COMMENT_POLL_INTERVAL_MS ?? 3 * 60_000
+  process.env.COMMENT_POLL_INTERVAL_MS ?? 5 * 60_000
 );
 
 console.log("[DM Worker] Started");
