@@ -8,17 +8,16 @@ export const metadata: Metadata = {
     "A free, self-hosted ManyChat alternative. Turn Instagram keyword comments into automatic private replies using the official Meta API.",
 };
 
+const GITHUB_URL = "https://github.com/diwenne/openreply";
+
 const navLinks = [
-  { label: "Templates", href: "/templates" },
-  { label: "Product", href: "#product" },
-  { label: "Use cases", href: "#use-cases" },
-  { label: "Security", href: "#security" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Founding offer", href: "#founding-offer" },
+  { label: "How it works", href: "#how" },
+  { label: "What's included", href: "#features" },
+  { label: "GitHub", href: GITHUB_URL },
 ];
 
 const seoLinks = [
-  { label: "Manychat alternative", href: "/manychat-alternative" },
+  { label: "ManyChat alternative", href: "/manychat-alternative" },
   { label: "Comment-to-DM templates", href: "/instagram-comment-to-dm-templates" },
   { label: "Agencies", href: "/instagram-dm-automation-agencies" },
   { label: "Comment LINK automation", href: "/comment-link-automation" },
@@ -30,130 +29,41 @@ const heroStats = [
   { value: "0", label: "Scraping required" },
 ];
 
-const audiences = [
-  "DTC store",
-  "Creator studio",
-  "Agency desk",
-  "Course seller",
-  "Launch team",
-  "Beauty brand",
-  "Fitness coach",
-  "Event team",
-];
-
 const flowSteps = [
   {
     eyebrow: "Connect",
     title: "Link your Instagram professional account",
     description:
-      "Owners sign in by email, connect Instagram once, and manage the account as a workspace integration.",
+      "Sign in by email and connect Instagram once. No password sharing, no browser automation.",
   },
   {
     eyebrow: "Build",
-    title: "Choose a post, keywords, and the exact DM",
+    title: "Pick a post, keywords, and the DM",
     description:
-      "Create campaigns for reels, posts, launches, product drops, lead magnets, and client work.",
+      "Create a campaign for a reel or post: the keyword to watch, the public reply, and the DM to send.",
   },
   {
     eyebrow: "Deliver",
-    title: "Send comment-based private replies safely",
+    title: "Replies go out through the official API",
     description:
-      "Meta webhooks are deduped, queued, checked against limits, and sent through the private reply flow.",
+      "Webhooks catch comments instantly and a polling sweep catches the ones Instagram never pushes, so nothing is missed. Every send is queued, rate-limited, and logged.",
   },
 ];
 
-const campaignCards = [
-  {
-    title: "Lead magnets",
-    description:
-      "Send guides, checklists, discount links, webinar links, or gated resources the moment someone asks.",
-  },
-  {
-    title: "Social commerce",
-    description:
-      "Turn comments like PRICE, LINK, SIZE, or BUY into an instant product conversation inside Instagram.",
-  },
-  {
-    title: "Agency workflows",
-    description:
-      "Package repeatable comment-to-DM funnels for campaign clients without relying on manual inbox work.",
-  },
-  {
-    title: "Creator launches",
-    description:
-      "Capture spikes from reels, stories, and launches while the audience is actively engaging.",
-  },
-];
-
-const platformFeatures = [
-  "Email magic-link signup",
-  "Workspace-based tenancy",
-  "Agency multi-account support",
-  "No plan limits — fully self-hosted",
-  "Encrypted Instagram tokens",
-  "Webhook event storage",
+const features = [
+  "Email magic-link sign-in",
+  "Multiple Instagram accounts",
+  "Encrypted tokens at rest",
+  "Webhook + polling reconciliation",
   "Queue-backed delivery worker",
-  "DM logs and statuses",
-  "Token refresh maintenance",
+  "Per-account rate limiting",
+  "Tracked links with click stats",
+  "DM logs with full status",
+  "No plan limits, fully self-hosted",
 ];
 
-const pricingTiers = [
-  {
-    name: "Self-hosted",
-    price: "$0",
-    label: "Everything included",
-    description: "Run it on your own infrastructure with no limits.",
-    features: [
-      "Unlimited campaigns",
-      "Unlimited DMs per month",
-      "Unlimited Instagram accounts",
-      "Queue-backed worker",
-      "Member roles and reports",
-    ],
-    cta: "Get started",
-    featured: false,
-  },
-];
-
-const foundingOffer = [
-  "Founding Agency badge on your client reports during beta",
-  "Manual onboarding for up to 10 Instagram client accounts",
-  "Campaign template setup for your first 3 client campaigns",
-  "Direct feedback channel for shaping agency reports and analytics",
-];
-
-const referralLoop = [
-  "Invite an agency operator",
-  "They launch a tracked campaign",
-  "Both accounts get founding-agency onboarding support",
-];
-
-const faqs = [
-  {
-    question: "Does OpenReply use the official Meta API?",
-    answer:
-      "Yes. The product is built around Meta webhooks and Instagram private replies, not scraping, browser automation, or password sharing.",
-  },
-  {
-    question: "Is there a monthly DM limit?",
-    answer:
-      "No. This build is self-hosted with no plan caps. An hourly rate limit still applies to stay within Meta's own messaging limits, and any throttled reply is logged so you can see what happened.",
-  },
-  {
-    question: "Can users sign up without Instagram first?",
-    answer:
-      "Yes. Signup uses email magic links. Instagram is connected after the workspace exists, which is cleaner for a B2B SaaS flow.",
-  },
-  {
-    question: "Is this ready for public launch?",
-    answer:
-      "The app is implementation-ready, but public launch still depends on production credentials, deployment, and Meta App Review approval.",
-  },
-];
-
-/* Landing-page product replicas — faithful, static copies of the real
-   Overview and Dashboard screens, built in the app's own design tokens so
-   what visitors see is what the app actually looks like. */
+/* Static, faithful copies of the real Overview and Dashboard screens, built in
+   the app's own design tokens so what visitors see is what the app looks like. */
 
 function AppWindow({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -336,7 +246,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b border-border bg-background">
-        <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-3" aria-label="OpenReply home">
             <span className="text-lg font-bold text-white">OpenReply</span>
           </Link>
@@ -364,16 +274,16 @@ export default function Home() {
               href="/login"
               className="inline-flex items-center justify-center gap-2 bg-cyan-300 px-4 py-2 text-sm font-bold text-zinc-950 transition hover:bg-cyan-200"
             >
-              Start free
+              Get started
             </Link>
           </div>
         </div>
       </header>
 
-      <section className="mx-auto grid w-full max-w-7xl items-center gap-10 px-5 pb-16 pt-12 sm:px-6 sm:pt-18 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:pb-24">
+      <section className="mx-auto grid w-full max-w-6xl items-center gap-10 px-5 pb-16 pt-12 sm:px-6 sm:pt-18 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:pb-24">
         <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-sm font-semibold text-emerald-100">
-            Built for Meta-compliant Instagram growth
+          <div className="inline-flex items-center gap-2 border border-white/10 bg-white/[0.04] px-3 py-2 text-sm font-semibold text-zinc-300">
+            Open source · Official Meta API
           </div>
 
           <h1 className="mt-7 text-balance text-5xl font-black leading-[1.02] text-white sm:text-6xl lg:text-7xl">
@@ -381,23 +291,23 @@ export default function Home() {
           </h1>
 
           <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-300">
-            OpenReply turns keyword comments on posts and reels into private
-            replies, campaign logs, and measurable lead capture for businesses,
-            creators, and agencies.
+            Open-sourced ManyChat. When someone comments your keyword on a post
+            or reel, they get your DM a second later. Free, self-hosted, and
+            built on the official Instagram API.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/login"
-              className="inline-flex items-center justify-center gap-2 bg-cyan-300 px-6 py-3 text-sm font-bold text-zinc-950 shadow-cyan-950/40 transition hover:bg-cyan-200"
+              className="inline-flex items-center justify-center gap-2 bg-cyan-300 px-6 py-3 text-sm font-bold text-zinc-950 transition hover:bg-cyan-200"
             >
-              Start free
+              Get started
             </Link>
             <a
-              href="#product"
+              href="#how"
               className="inline-flex items-center justify-center border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-bold text-white transition hover:border-white/20 hover:bg-white/[0.08]"
             >
-              See the workflow
+              See how it works
             </a>
           </div>
 
@@ -419,34 +329,17 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-y border-white/10 bg-zinc-950/55 py-6">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-5 sm:px-6 lg:px-8">
-          <p className="text-sm font-semibold text-zinc-400">
-            Designed for teams turning social attention into owned conversations
-          </p>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
-            {audiences.map((audience) => (
-              <div
-                key={audience}
-                className="border border-white/10 bg-white/[0.03] px-3 py-3 text-center text-sm font-semibold text-zinc-300"
-              >
-                {audience}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="product" className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-6 lg:px-8">
+      <section id="how" className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-6 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
           <div>
-            <p className="text-sm font-bold uppercase text-cyan-200">Product workflow</p>
+            <p className="text-sm font-bold uppercase text-cyan-200">How it works</p>
             <h2 className="mt-3 text-4xl font-black leading-tight text-white sm:text-5xl">
-              A cleaner way to run Instagram DM campaigns
+              A comment in, a DM out
             </h2>
             <p className="mt-5 text-base leading-8 text-zinc-400">
-              The app separates business signup from Instagram connection, then
-              gives each workspace real usage, billing, delivery, and log state.
+              Three steps. Connect an account, build a campaign, and let it run.
+              The webhook handles it live and the poll sweeps up whatever the
+              webhook misses.
             </p>
           </div>
 
@@ -454,9 +347,9 @@ export default function Home() {
             {flowSteps.map((step) => (
               <article
                 key={step.title}
-                className="grid gap-4 border border-white/10 bg-white/[0.035] p-5 sm:grid-cols-[140px_1fr]"
+                className="grid gap-4 border border-white/10 bg-white/[0.035] p-5 sm:grid-cols-[120px_1fr]"
               >
-                <p className="text-sm font-bold text-emerald-200">{step.eyebrow}</p>
+                <p className="text-sm font-bold text-cyan-200">{step.eyebrow}</p>
                 <div>
                   <h3 className="text-xl font-bold text-white">{step.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-zinc-400">{step.description}</p>
@@ -468,253 +361,80 @@ export default function Home() {
       </section>
 
       <section className="border-y border-white/10 bg-white/[0.025] py-20">
-        <div className="mx-auto grid w-full max-w-7xl gap-10 px-5 sm:px-6 lg:grid-cols-[1.08fr_0.92fr] lg:px-8 lg:items-center">
+        <div className="mx-auto grid w-full max-w-6xl gap-10 px-5 sm:px-6 lg:grid-cols-[1.08fr_0.92fr] lg:px-8 lg:items-center">
           <DashboardPreview />
 
           <div>
-            <p className="text-sm font-bold uppercase text-emerald-200">Operator dashboard</p>
+            <p className="text-sm font-bold uppercase text-cyan-200">The dashboard</p>
             <h2 className="mt-3 text-4xl font-black leading-tight text-white sm:text-5xl">
-              Built to show what happened, not hide it
+              See exactly what happened
             </h2>
             <p className="mt-5 text-base leading-8 text-zinc-400">
-              Every comment event becomes traceable: queued, matched, sent,
-              skipped, failed, or rate-limited.
-            </p>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {platformFeatures.slice(0, 4).map((feature) => (
-                <div key={feature} className="flex items-center gap-3 text-sm text-zinc-300">
-                  {feature}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="use-cases" className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-bold uppercase text-cyan-200">Use cases</p>
-          <h2 className="mt-3 text-4xl font-black leading-tight text-white sm:text-5xl">
-            Campaigns your team can launch without inbox chaos
-          </h2>
-        </div>
-
-        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {campaignCards.map((card) => (
-            <article key={card.title} className="border border-white/10 bg-zinc-950 p-5">
-              <div className="mb-6 flex h-10 w-10 items-center justify-center border border-cyan-200/20 bg-cyan-300/10 text-cyan-100">
-              </div>
-              <h3 className="text-xl font-bold text-white">{card.title}</h3>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">{card.description}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section id="security" className="border-y border-white/10 bg-zinc-950/60 py-20">
-        <div className="mx-auto grid w-full max-w-7xl gap-10 px-5 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
-          <div>
-            <p className="text-sm font-bold uppercase text-emerald-200">Trust and compliance</p>
-            <h2 className="mt-3 text-4xl font-black leading-tight text-white sm:text-5xl">
-              Serious foundations for a public B2B product
-            </h2>
-            <p className="mt-5 text-base leading-8 text-zinc-400">
-              The system is designed around official APIs, encrypted tokens,
-              and idempotent queue processing.
+              Every comment event is traceable: queued, matched, sent, skipped,
+              failed, or rate-limited. No black box.
             </p>
           </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            {platformFeatures.map((feature) => (
-              <div
-                key={feature}
-                className="flex items-center gap-3 border border-white/10 bg-white/[0.035] p-4 text-sm font-semibold text-zinc-200"
-              >
-                {feature}
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
-      <section id="pricing" className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-bold uppercase text-cyan-200">Pricing</p>
+      <section id="features" className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-6 lg:px-8">
+        <div className="max-w-2xl">
+          <p className="text-sm font-bold uppercase text-cyan-200">What&rsquo;s included</p>
           <h2 className="mt-3 text-4xl font-black leading-tight text-white sm:text-5xl">
-            Free to test, simple to scale
+            Everything, no tiers
           </h2>
           <p className="mt-5 text-base leading-8 text-zinc-400">
-            Self-hosted and free. No plan tiers, no usage caps, no checkout.
+            It is self-hosted and open source, so there is nothing to unlock. You
+            run it, you own it.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-4 lg:grid-cols-3">
-          {pricingTiers.map((tier) => (
-            <article
-              key={tier.name}
-              className={`border p-6 ${
-                tier.featured
-                  ? "border-cyan-200/40 bg-cyan-300/10"
-                  : "border-white/10 bg-white/[0.035]"
-              }`}
+        <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((feature) => (
+            <div
+              key={feature}
+              className="border border-white/10 bg-white/[0.035] p-4 text-sm font-semibold text-zinc-200"
             >
-              <div className="flex min-h-24 items-start justify-between gap-4">
-                <div>
-                  <h3 className="text-2xl font-black text-white">{tier.name}</h3>
-                  <p className="mt-2 text-sm leading-6 text-zinc-400">{tier.description}</p>
-                </div>
-                <span
-                  className={`px-3 py-1 text-xs font-bold ${
-                    tier.featured
-                      ? "bg-cyan-300 text-zinc-950"
-                      : "border border-white/10 text-zinc-400"
-                  }`}
-                >
-                  {tier.label}
-                </span>
-              </div>
-
-              <div className="mt-7 flex items-end gap-1">
-                <span className="text-5xl font-black text-white">{tier.price}</span>
-                <span className="pb-2 text-sm text-zinc-500">/mo</span>
-              </div>
-
-              <ul className="mt-7 space-y-3">
-                {tier.features.map((feature) => (
-                  <li key={feature} className="flex gap-3 text-sm text-zinc-300">
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                href="/login"
-                className={`mt-8 inline-flex w-full items-center justify-center gap-2 px-5 py-3 text-sm font-bold transition ${
-                  tier.featured
-                    ? "bg-cyan-300 text-zinc-950 hover:bg-cyan-200"
-                    : "border border-white/10 bg-white/[0.04] text-white hover:border-white/20 hover:bg-white/[0.08]"
-                }`}
-              >
-                {tier.cta}
-              </Link>
-            </article>
+              {feature}
+            </div>
           ))}
         </div>
       </section>
 
-      <section
-        id="founding-offer"
-        className="border-y border-white/10 bg-zinc-950/70 py-20"
-      >
-        <div className="mx-auto grid w-full max-w-7xl gap-8 px-5 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
-          <div>
-            <p className="text-sm font-bold uppercase text-rose-200">
-              Founding agency offer
-            </p>
-            <h2 className="mt-3 text-4xl font-black leading-tight text-white sm:text-5xl">
-              Bring your first clients before the market gets noisy
-            </h2>
-            <p className="mt-5 text-base leading-8 text-zinc-400">
-              Early agencies get hands-on onboarding, template help, and a say
-              in the agency reporting roadmap. The offer is designed for teams
-              already managing Instagram campaigns for multiple clients.
-            </p>
-            <Link
-              href="/login"
-              className="mt-8 inline-flex items-center justify-center gap-2 bg-rose-200 px-6 py-3 text-sm font-bold text-zinc-950 transition hover:bg-rose-100"
-            >
-              Claim founding access
-            </Link>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <article className="border border-rose-200/20 bg-rose-300/10 p-6">
-              <h3 className="text-2xl font-black text-white">
-                What founders get
-              </h3>
-              <ul className="mt-6 space-y-3">
-                {foundingOffer.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm text-zinc-300">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </article>
-
-            <article className="border border-white/10 bg-white/[0.035] p-6">
-              <h3 className="text-2xl font-black text-white">
-                Referral loop
-              </h3>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">
-                Referrals start as a manual founding-agency loop first, with
-                credits handled manually while abuse controls are proven.
-              </p>
-              <ol className="mt-6 space-y-3">
-                {referralLoop.map((item, index) => (
-                  <li key={item} className="flex gap-3 text-sm text-zinc-300">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center border border-cyan-200/20 text-xs font-black text-cyan-100">
-                      {index + 1}
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ol>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-y border-white/10 bg-white/[0.025] py-20">
-        <div className="mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8">
-          <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
-            <div>
-              <p className="text-sm font-bold uppercase text-emerald-200">FAQ</p>
-              <h2 className="mt-3 text-4xl font-black leading-tight text-white">
-                Questions before you launch
-              </h2>
-            </div>
-            <div className="grid gap-3">
-              {faqs.map((faq) => (
-                <article key={faq.question} className="border border-white/10 bg-zinc-950 p-5">
-                  <h3 className="text-lg font-bold text-white">{faq.question}</h3>
-                  <p className="mt-2 text-sm leading-6 text-zinc-400">{faq.answer}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-6xl px-5 pb-20 sm:px-6 lg:px-8">
         <div className="grid gap-8 border border-white/10 bg-surface p-6 sm:p-10 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
-            <p className="text-sm font-bold uppercase text-cyan-100">
-              Ready when your next reel goes live
-            </p>
-            <h2 className="mt-3 max-w-3xl text-4xl font-black leading-tight text-white sm:text-5xl">
-              Start free and turn keyword comments into private replies
+            <h2 className="max-w-3xl text-4xl font-black leading-tight text-white sm:text-5xl">
+              Turn your next reel&rsquo;s comments into DMs
             </h2>
+            <p className="mt-4 text-base text-zinc-400">
+              Free and open source. Star it if it saves you a subscription.
+            </p>
           </div>
-          <Link
-            href="/login"
-            className="inline-flex items-center justify-center gap-2 bg-cyan-300 px-6 py-3 text-sm font-bold text-zinc-950 transition hover:bg-cyan-200"
-          >
-            Start free
-          </Link>
+          <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center gap-2 bg-cyan-300 px-6 py-3 text-sm font-bold text-zinc-950 transition hover:bg-cyan-200"
+            >
+              Get started
+            </Link>
+            <a
+              href={GITHUB_URL}
+              className="inline-flex items-center justify-center border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-bold text-white transition hover:border-white/20 hover:bg-white/[0.08]"
+            >
+              View on GitHub
+            </a>
+          </div>
         </div>
       </section>
 
       <footer className="border-t border-white/10 py-8">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-5 text-sm text-zinc-500 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
-          <div className="flex items-center gap-3">
-            <span>OpenReply</span>
-          </div>
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-5 text-sm text-zinc-500 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+          <span>OpenReply</span>
           <div className="flex flex-wrap gap-4">
-            {navLinks.map((link) => (
-              <a key={link.href} href={link.href} className="transition hover:text-white">
-                {link.label}
-              </a>
-            ))}
+            <a href={GITHUB_URL} className="transition hover:text-white">
+              GitHub
+            </a>
             {seoLinks.map((link) => (
               <Link key={link.href} href={link.href} className="transition hover:text-white">
                 {link.label}
@@ -731,9 +451,6 @@ export default function Home() {
             </Link>
             <Link href="/data-deletion" className="transition hover:text-white">
               Data deletion
-            </Link>
-            <Link href="/meta-review" className="transition hover:text-white">
-              Meta review
             </Link>
           </div>
         </div>
